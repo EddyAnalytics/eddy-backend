@@ -1,4 +1,4 @@
 .idea
-eddy-backend/__pycache__
+eddy_backend/__pycache__
 venv
 db.sqlite3
