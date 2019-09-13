@@ -1,0 +1,35 @@
+<ul>
+    <li>
+        connector_class: {{ debezium_connector.config.connector_class }}
+    </li>
+    <li>
+        tasks_max: {{ debezium_connector.config.tasks_max }}
+    </li>
+    <li>
+        database_hostname: {{ debezium_connector.config.database_hostname }}
+    </li>
+    <li>
+        database_port: {{ debezium_connector.config.database_port }}
+    </li>
+    <li>
+        database_user: {{ debezium_connector.config.database_user }}
+    </li>
+    <li>
+        database_password: {{ debezium_connector.config.database_password }}
+    </li>
+    <li>
+        database_server_id: {{ debezium_connector.config.database_server_id }}
+    </li>
+    <li>
+        database_server_name: {{ debezium_connector.config.database_server_name }}
+    </li>
+    <li>
+        database_whitelist: {{ debezium_connector.config.database_whitelist }}
+    </li>
+    <li>
+        database_history_kafka_bootstrap_servers: {{ debezium_connector.config.database_history_kafka_bootstrap_servers }}
+    </li>
+    <li>
+        database_history_kafka_topic: {{ debezium_connector.config.database_history_kafka_topic }}
+    </li>
+</ul>
