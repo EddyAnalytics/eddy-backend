@@ -20,5 +20,4 @@ from graphene_django.views import GraphQLView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('graphql', GraphQLView.as_view(graphiql=True)),
-    path('debezium-connectors/', include('debezium_connectors.urls')),
 ]
