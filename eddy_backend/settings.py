@@ -119,5 +119,5 @@ STATIC_URL = '/static/'
 STATIC_ROOT = './static/'
 
 GRAPHENE = {
-    'SCHEMA': 'django_root.schema.schema'
+    'SCHEMA': 'schema.schema'
 }
