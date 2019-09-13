@@ -1,40 +1,30 @@
 import graphene
+from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.types import DjangoObjectType
 
 from debezium_connectors.models import DebeziumConnector, DebeziumConnectorConfig
 
 
-class DebeziumConnectorType(DjangoObjectType):
+class DebeziumConnectorNode(DjangoObjectType):
     class Meta:
         model = DebeziumConnector
+        filter_fields = {
+            'name': ['exact', 'icontains', 'istartswith']
+        }
+        interfaces = (graphene.relay.Node,)
 
 
-class DebeziumConnectorConfigType(DjangoObjectType):
+class DebeziumConnectorConfigNode(DjangoObjectType):
     class Meta:
         model = DebeziumConnectorConfig
+        filter_fields = {
+            'database_hostname': ['exact', 'icontains', 'istartswith']
+        }
+        interfaces = (graphene.relay.Node,)
 
 
 class Query(object):
-    debezium_connector = graphene.Field(DebeziumConnectorType, id=graphene.Int())
-    all_debezium_connectors = graphene.List(DebeziumConnectorType)
-    debezium_connector_config = graphene.Field(DebeziumConnectorConfigType, id=graphene.Int())
-    all_debezium_connector_configs = graphene.List(DebeziumConnectorConfigType)
-
-    def resolve_debezium_connector(self, info, **kwargs):
-        id = kwargs.get('id')
-        if id is not None:
-            return DebeziumConnector.objects.get(pk=id)
-        return None
-
-    def resolve_all_debezium_connectors(self, info, **kwargs):
-        return DebeziumConnector.objects.all()
-
-    def resolve_debezium_connector_config(self, info, **kwargs):
-        id = kwargs.get('id')
-        if id is not None:
-            return DebeziumConnectorConfig.objects.get(pk=id)
-        return None
-
-    def resolve_debezium_connector_configs(self, info, **kwargs):
-        # We can easily optimize query count in the resolve method
-        return DebeziumConnectorConfig.objects.all()
+    debezium_connector = graphene.Node.Field(DebeziumConnectorNode)
+    all_debezium_connectors = DjangoFilterConnectionField(DebeziumConnectorNode)
+    debezium_connector_config = graphene.Node.Field(DebeziumConnectorConfigNode)
+    all_debezium_connector_configs = DjangoFilterConnectionField(DebeziumConnectorConfigNode)
