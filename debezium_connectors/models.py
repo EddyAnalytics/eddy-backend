@@ -17,14 +17,15 @@ class DebeziumConnectorConfig(models.Model):
 
     def __str__(self):
         try:
-            return self.debeziumconnector.name + ' ' + 'config'
+            return self.connector.name + ' ' + 'config'
         except DebeziumConnector.DoesNotExist:
             return 'config'
 
 
 class DebeziumConnector(models.Model):
     name = models.CharField(default='inventory-connector', max_length=200)
-    config = models.OneToOneField(DebeziumConnectorConfig, on_delete=models.CASCADE)
+    config = models.OneToOneField(DebeziumConnectorConfig, related_name='connector', blank=True, null=True,
+                                  on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
