@@ -1,5 +1,4 @@
 import re
-from typing import Type
 
 import graphene
 from django.db import models
@@ -7,16 +6,19 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 
 
-def camel_to_snake(name: str) -> str:
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+# convert a snake case string to a camel case string
+def camel_to_snake(string):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', string)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
-def snake_to_camel(word: str) -> str:
-    return ''.join(x.capitalize() or '_' for x in word.split('_'))
+# convert a snake case string to a camel case string
+def snake_to_camel(string):
+    return ''.join(x.capitalize() or '_' for x in string.split('_'))
 
 
-def model_to_node(model: Type[models.Model]) -> Type:
+# dynamically generate *Node classes (DebeziumConnectorNode, DebeziumConnectorConfigNode)
+def model_to_node(model):
     meta = type(
         'Meta',
         (),
@@ -32,7 +34,8 @@ def model_to_node(model: Type[models.Model]) -> Type:
     return node
 
 
-def model_to_query(model: Type[models.Model], node: Type) -> Type:
+# dynamically generate *Query classes (DebeziumConnectorQuery, DebeziumConnectorConfigQuery)
+def model_to_query(model, node):
     query = type(
         model.__name__ + 'Query',
         (graphene.ObjectType,),
@@ -43,7 +46,8 @@ def model_to_query(model: Type[models.Model], node: Type) -> Type:
     return query
 
 
-def mutate_factory_create(model: Type[models.Model]):
+# factory for mutate methods for Create* mutations
+def mutate_factory_create(model):
     def mutate(self, info, **kwargs):
         target = model()
         for field in model._meta.fields:
@@ -54,12 +58,14 @@ def mutate_factory_create(model: Type[models.Model]):
                 else:
                     setattr(target, field.name, kwargs.get(field.name))
         target.save()
+        # TODO hier gaat alles mis
         return self.__class__(**{camel_to_snake(model.__name__): target})
 
     return mutate
 
 
-def model_to_create(model: Type[models.Model], node: Type) -> Type:
+# dynamically generate Create* classes (CreateDebeziumConnector, CreateDebeziumConnectorConfig)
+def model_to_create(model, node):
     django_type_to_graphene_type = {
         models.IntegerField: graphene.Int,
         models.CharField: graphene.String,
@@ -76,17 +82,19 @@ def model_to_create(model: Type[models.Model], node: Type) -> Type:
     create = type(
         'Create' + model.__name__,
         (graphene.Mutation,),
-        {'Arguments': arguments, camel_to_snake(model.__name__): graphene.Field(node), 'mutate': mutate_factory_create(model)}
+        {'Arguments': arguments, camel_to_snake(model.__name__): graphene.Field(node),
+         'mutate': mutate_factory_create(model)}
     )
 
     return create
 
 
-def model_to_mutation(model: Type[models.Model], node: Type) -> Type:
+# dynamically generate *Mutation classes (DebeziumConnectorMutation, DebeziumConnectorConfigMutation)
+def model_to_mutation(model, node):
     create = model_to_create(model, node)
     mutation = type(
-        create.__name__ + 'Mutation',
-        (),
+        model.__name__ + 'Mutation',
+        (object,),
         {camel_to_snake(create.__name__): create.Field()}
     )
 
