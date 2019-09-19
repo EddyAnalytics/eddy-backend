@@ -1,0 +1,229 @@
+mutation Create {
+  createDebeziumConnector {
+    debeziumConnector {
+      id
+      name
+      config {
+        id
+        connectorClass
+        tasksMax
+        databaseHostname
+        databasePort
+        databaseUser
+        databasePassword
+        databaseServerId
+        databaseServerName
+        databaseWhitelist
+        databaseHistoryKafkaBootstrapServers
+        databaseHistoryKafkaTopic
+      }
+    }
+  }
+}
+
+query ReadOne($id: ID!) {
+  debeziumConnector(id: $id) {
+    id
+    name
+    config {
+      id
+      connectorClass
+      tasksMax
+      databaseHostname
+      databasePort
+      databaseUser
+      databasePassword
+      databaseServerId
+      databaseServerName
+      databaseWhitelist
+      databaseHistoryKafkaBootstrapServers
+      databaseHistoryKafkaTopic
+    }
+  }
+}
+
+query ReadList {
+  allDebeziumConnectors {
+    edges {
+      node {
+        id
+        name
+        config {
+          id
+          connectorClass
+          tasksMax
+          databaseHostname
+          databasePort
+          databaseUser
+          databasePassword
+          databaseServerId
+          databaseServerName
+          databaseWhitelist
+          databaseHistoryKafkaBootstrapServers
+          databaseHistoryKafkaTopic
+        }
+      }
+    }
+  }
+}
+
+mutation Update($id: ID!, $updateId: ID!) {
+  updateDebeziumConnector(id: $id, configId: $updateId) {
+    debeziumConnector {
+      id
+      name
+      config {
+        id
+        connectorClass
+        tasksMax
+        databaseHostname
+        databasePort
+        databaseUser
+        databasePassword
+        databaseServerId
+        databaseServerName
+        databaseWhitelist
+        databaseHistoryKafkaBootstrapServers
+        databaseHistoryKafkaTopic
+      }
+    }
+  }
+}
+
+mutation Delete($id: ID!) {
+  deleteDebeziumConnector(id: $id) {
+    debeziumConnector {
+      id
+      name
+      config {
+        id
+        connectorClass
+        tasksMax
+        databaseHostname
+        databasePort
+        databaseUser
+        databasePassword
+        databaseServerId
+        databaseServerName
+        databaseWhitelist
+        databaseHistoryKafkaBootstrapServers
+        databaseHistoryKafkaTopic
+      }
+    }
+  }
+}
+
+mutation CreateConfig {
+  createDebeziumConnectorConfig {
+    debeziumConnectorConfig {
+      id
+      connectorClass
+      tasksMax
+      databaseHostname
+      databasePort
+      databaseUser
+      databasePassword
+      databaseServerId
+      databaseServerName
+      databaseWhitelist
+      databaseHistoryKafkaBootstrapServers
+      databaseHistoryKafkaTopic
+      connector {
+        id
+        name
+      }
+    }
+  }
+}
+
+query ReadOneConfig($id: ID!) {
+  debeziumConnectorConfig(id: $id) {
+    id
+    connectorClass
+    tasksMax
+    databaseHostname
+    databasePort
+    databaseUser
+    databasePassword
+    databaseServerId
+    databaseServerName
+    databaseWhitelist
+    databaseHistoryKafkaBootstrapServers
+    databaseHistoryKafkaTopic
+    connector {
+      id
+      name
+    }
+  }
+}
+
+query ReadListConfig {
+  allDebeziumConnectorConfigs {
+    edges {
+      node {
+        id
+        connectorClass
+        tasksMax
+        databaseHostname
+        databasePort
+        databaseUser
+        databasePassword
+        databaseServerId
+        databaseServerName
+        databaseWhitelist
+        databaseHistoryKafkaBootstrapServers
+        databaseHistoryKafkaTopic
+        connector {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+
+mutation UpdateConfig($id: ID!, $updateId: ID!) {
+  updateDebeziumConnectorConfig(id: $id, connectorId: $updateId) {
+    debeziumConnectorConfig {
+      id
+      connectorClass
+      tasksMax
+      databaseHostname
+      databasePort
+      databaseUser
+      databasePassword
+      databaseServerId
+      databaseServerName
+      databaseWhitelist
+      databaseHistoryKafkaBootstrapServers
+      databaseHistoryKafkaTopic
+      connector {
+        id
+        name
+      }
+    }
+  }
+}
+
+mutation DeleteConfig($id: ID!) {
+  deleteDebeziumConnectorConfig(id: $id) {
+    debeziumConnectorConfig {
+      id
+      connectorClass
+      tasksMax
+      databaseHostname
+      databasePort
+      databaseUser
+      databasePassword
+      databaseServerId
+      databaseServerName
+      databaseWhitelist
+      databaseHistoryKafkaBootstrapServers
+      databaseHistoryKafkaTopic
+      connector {
+        id
+        name
+      }
+    }
+  }
+}
