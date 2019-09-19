@@ -48,7 +48,8 @@ def model_to_query(model, node):
 
 # factory for mutate methods for Create* mutations
 def mutate_factory_create(model):
-    def mutate(self, info, **kwargs):
+    @classmethod
+    def mutate(cls, self, info, **kwargs):
         target = model()
         for field in model._meta.fields:
             if field.name != 'id' and field.name in kwargs.keys():
@@ -58,8 +59,7 @@ def mutate_factory_create(model):
                 else:
                     setattr(target, field.name, kwargs.get(field.name))
         target.save()
-        # TODO hier gaat alles mis
-        return self.__class__(**{camel_to_snake(model.__name__): target})
+        return cls(**{camel_to_snake(model.__name__): target})
 
     return mutate
 
@@ -89,13 +89,113 @@ def model_to_create(model, node):
     return create
 
 
+# factory for mutate methods for Update* mutations
+def mutate_factory_update(model):
+    @classmethod
+    def mutate(cls, self, info, **kwargs):
+        id = kwargs.get('id')
+
+        if id is None:
+            return None
+
+        target = graphene.relay.Node.get_node_from_global_id(info, id)
+
+        if target is None:
+            return None
+
+        for field in model._meta.fields:
+            if field.name != 'id' and field.name in kwargs.keys():
+                if type(field) == graphene.ID:
+                    foreign = graphene.relay.Node.get_node_from_global_id(info, kwargs.get(field.name))
+                    setattr(target, field.name, foreign)
+                else:
+                    setattr(target, field.name, kwargs.get(field.name))
+        target.save()
+        return cls(**{camel_to_snake(model.__name__): target})
+
+    return mutate
+
+
+# dynamically generate Update* classes (CreateDebeziumConnector, CreateDebeziumConnectorConfig)
+def model_to_update(model, node):
+    django_type_to_graphene_type = {
+        models.IntegerField: graphene.Int,
+        models.CharField: graphene.String,
+        models.OneToOneField: graphene.ID
+    }
+
+    arguments = type(
+        'Arguments',
+        (),
+        {field.name: django_type_to_graphene_type[type(field)]() for field in model._meta.fields if
+         not isinstance(field, models.AutoField)}
+    )
+
+    update = type(
+        'Update' + model.__name__,
+        (graphene.Mutation,),
+        {'Arguments': arguments, camel_to_snake(model.__name__): graphene.Field(node),
+         'mutate': mutate_factory_create(model)}
+    )
+
+    return update
+
+
+# factory for mutate methods for Delete* mutations
+def mutate_factory_delete(model):
+    @classmethod
+    def mutate(cls, self, info, **kwargs):
+        id = kwargs.get('id')
+
+        if id is None:
+            return None
+
+        target = graphene.relay.Node.get_node_from_global_id(info, id)
+
+        if target is None:
+            return None
+
+        target.delete()
+        return cls(**{camel_to_snake(model.__name__): target})
+
+    return mutate
+
+
+def model_to_delete(model, node):
+    django_type_to_graphene_type = {
+        models.IntegerField: graphene.Int,
+        models.CharField: graphene.String,
+        models.OneToOneField: graphene.ID,
+    }
+
+    arguments = type(
+        'Arguments',
+        (),
+        {field.name: django_type_to_graphene_type[type(field)]() for field in model._meta.fields if
+         not isinstance(field, models.AutoField)}
+    )
+
+    delete = type(
+        'Delete' + model.__name__,
+        (graphene.Mutation,),
+        {'Arguments': arguments, camel_to_snake(model.__name__): graphene.Field(node),
+         'mutate': mutate_factory_create(model)}
+    )
+
+    return delete
+
+
 # dynamically generate *Mutation classes (DebeziumConnectorMutation, DebeziumConnectorConfigMutation)
 def model_to_mutation(model, node):
     create = model_to_create(model, node)
+    update = model_to_update(model, node)
+    delete = model_to_delete(model, node)
     mutation = type(
         model.__name__ + 'Mutation',
         (object,),
-        {camel_to_snake(create.__name__): create.Field()}
+        {camel_to_snake(create.__name__): create.Field(),
+         camel_to_snake(update.__name__): update.Field(),
+         camel_to_snake(delete.__name__): delete.Field()}
     )
 
     return mutation
