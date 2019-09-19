@@ -43,7 +43,7 @@ query ReadOne($id: ID!) {
 }
 
 query ReadList {
-  allDebeziumConnectors {
+  allDebeziumConnector {
     edges {
       node {
         id
@@ -67,8 +67,8 @@ query ReadList {
   }
 }
 
-mutation Update($id: ID!, $updateId: ID!) {
-  updateDebeziumConnector(id: $id, configId: $updateId) {
+mutation Update($id: ID!) {
+  updateDebeziumConnector(id: $id) {
     debeziumConnector {
       id
       name
@@ -158,7 +158,7 @@ query ReadOneConfig($id: ID!) {
 }
 
 query ReadListConfig {
-  allDebeziumConnectorConfigs {
+  allDebeziumConnectorConfig {
     edges {
       node {
         id
@@ -182,8 +182,8 @@ query ReadListConfig {
   }
 }
 
-mutation UpdateConfig($id: ID!, $updateId: ID!) {
-  updateDebeziumConnectorConfig(id: $id, connectorId: $updateId) {
+mutation UpdateConfig($id: ID!) {
+  updateDebeziumConnectorConfig(id: $id) {
     debeziumConnectorConfig {
       id
       connectorClass

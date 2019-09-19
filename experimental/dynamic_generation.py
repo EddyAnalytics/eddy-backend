@@ -17,6 +17,24 @@ def snake_to_camel(string):
     return ''.join(x.capitalize() or '_' for x in string.split('_'))
 
 
+def fields_to_arguments(fields):
+    django_type_to_graphene_type = {
+        models.IntegerField: graphene.Int,
+        models.CharField: graphene.String
+    }
+
+    arguments = dict()
+    for field in fields:
+        if isinstance(field, models.AutoField):
+            pass
+        elif isinstance(field, models.OneToOneField):
+            arguments[field.name + '_id'] = graphene.ID()
+        else:
+            arguments[field.name] = django_type_to_graphene_type[type(field)]()
+
+    return arguments
+
+
 # dynamically generate *Node classes (DebeziumConnectorNode, DebeziumConnectorConfigNode)
 def model_to_node(model):
     meta = type(
@@ -47,17 +65,17 @@ def model_to_query(model, node):
 
 
 # factory for mutate methods for Create* mutations
-def mutate_factory_create(model):
+def mutate_factory_create(model, arguments):
     @classmethod
     def mutate(cls, self, info, **kwargs):
         target = model()
-        for field in model._meta.fields:
-            if field.name != 'id' and field.name in kwargs.keys():
-                if type(field) == graphene.ID:
-                    foreign = graphene.relay.Node.get_node_from_global_id(info, kwargs.get(field.name))
-                    setattr(target, field.name, foreign)
+        for argument_name, argument_type in arguments.__dict__.items():
+            if argument_name in kwargs.keys():
+                if argument_type == graphene.ID:
+                    foreign = graphene.relay.Node.get_node_from_global_id(info, kwargs.get(argument_name))
+                    setattr(target, argument_name, foreign)
                 else:
-                    setattr(target, field.name, kwargs.get(field.name))
+                    setattr(target, argument_name, kwargs.get(argument_name))
         target.save()
         return cls(**{camel_to_snake(model.__name__): target})
 
@@ -66,31 +84,24 @@ def mutate_factory_create(model):
 
 # dynamically generate Create* classes (CreateDebeziumConnector, CreateDebeziumConnectorConfig)
 def model_to_create(model, node):
-    django_type_to_graphene_type = {
-        models.IntegerField: graphene.Int,
-        models.CharField: graphene.String,
-        models.OneToOneField: graphene.ID
-    }
-
     arguments = type(
         'Arguments',
         (),
-        {field.name: django_type_to_graphene_type[type(field)]() for field in model._meta.fields if
-         not isinstance(field, models.AutoField)}
+        fields_to_arguments(model._meta.fields)
     )
 
     create = type(
         'Create' + model.__name__,
         (graphene.Mutation,),
         {'Arguments': arguments, camel_to_snake(model.__name__): graphene.Field(node),
-         'mutate': mutate_factory_create(model)}
+         'mutate': mutate_factory_create(model, arguments)}
     )
 
     return create
 
 
 # factory for mutate methods for Update* mutations
-def mutate_factory_update(model):
+def mutate_factory_update(model, arguments):
     @classmethod
     def mutate(cls, self, info, **kwargs):
         id = kwargs.get('id')
@@ -103,13 +114,13 @@ def mutate_factory_update(model):
         if target is None:
             return None
 
-        for field in model._meta.fields:
-            if field.name != 'id' and field.name in kwargs.keys():
-                if type(field) == graphene.ID:
-                    foreign = graphene.relay.Node.get_node_from_global_id(info, kwargs.get(field.name))
-                    setattr(target, field.name, foreign)
+        for argument_name, argument_type in arguments.__dict__.items():
+            if argument_name in kwargs.keys():
+                if argument_type == graphene.ID:
+                    foreign = graphene.relay.Node.get_node_from_global_id(info, kwargs.get(argument_name))
+                    setattr(target, argument_name, foreign)
                 else:
-                    setattr(target, field.name, kwargs.get(field.name))
+                    setattr(target, argument_name, kwargs.get(argument_name))
         target.save()
         return cls(**{camel_to_snake(model.__name__): target})
 
@@ -118,31 +129,26 @@ def mutate_factory_update(model):
 
 # dynamically generate Update* classes (CreateDebeziumConnector, CreateDebeziumConnectorConfig)
 def model_to_update(model, node):
-    django_type_to_graphene_type = {
-        models.IntegerField: graphene.Int,
-        models.CharField: graphene.String,
-        models.OneToOneField: graphene.ID
-    }
-
     arguments = type(
         'Arguments',
         (),
-        {field.name: django_type_to_graphene_type[type(field)]() for field in model._meta.fields if
-         not isinstance(field, models.AutoField)}
+        fields_to_arguments(model._meta.fields)
     )
+
+    setattr(arguments, 'id', graphene.ID())
 
     update = type(
         'Update' + model.__name__,
         (graphene.Mutation,),
         {'Arguments': arguments, camel_to_snake(model.__name__): graphene.Field(node),
-         'mutate': mutate_factory_create(model)}
+         'mutate': mutate_factory_update(model, arguments)}
     )
 
     return update
 
 
 # factory for mutate methods for Delete* mutations
-def mutate_factory_delete(model):
+def mutate_factory_delete(model, arguments):
     @classmethod
     def mutate(cls, self, info, **kwargs):
         id = kwargs.get('id')
@@ -162,24 +168,19 @@ def mutate_factory_delete(model):
 
 
 def model_to_delete(model, node):
-    django_type_to_graphene_type = {
-        models.IntegerField: graphene.Int,
-        models.CharField: graphene.String,
-        models.OneToOneField: graphene.ID,
-    }
-
     arguments = type(
         'Arguments',
         (),
-        {field.name: django_type_to_graphene_type[type(field)]() for field in model._meta.fields if
-         not isinstance(field, models.AutoField)}
+        {}
     )
+
+    setattr(arguments, 'id', graphene.ID())
 
     delete = type(
         'Delete' + model.__name__,
         (graphene.Mutation,),
         {'Arguments': arguments, camel_to_snake(model.__name__): graphene.Field(node),
-         'mutate': mutate_factory_create(model)}
+         'mutate': mutate_factory_delete(model, arguments)}
     )
 
     return delete
@@ -199,28 +200,3 @@ def model_to_mutation(model, node):
     )
 
     return mutation
-
-# def model_to_delete(model: models.Model, Node: Type):
-#     def mutate(self, info, **kwargs):
-#         id = kwargs.get('id')
-#         if id is None:
-#             return None
-#
-#         target = graphene.relay.Node.get_node_from_global_id(info, id)
-#
-#         if target is None:
-#             return None
-#
-#         target.delete()
-#         return self.__class__()
-#
-#     Arguments = type('Arguments',
-#                      (),
-#                      {'id': graphene.ID()}
-#                      )
-#
-#     Delete = type('Delete' + model.__name__,
-#                   (graphene.Mutation,),
-#                   {'Arguments': Arguments, 'mutate': mutate}
-#                   )
-#     return Delete
