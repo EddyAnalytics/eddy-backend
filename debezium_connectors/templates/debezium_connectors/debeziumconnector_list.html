@@ -1,9 +1,0 @@
-{% if debezium_connector_list %}
-    <ul>
-        {% for debezium_connector in debezium_connector_list %}
-            <li><a href="{% url 'debezium_connectors:detail' debezium_connector.id %}">{{ debezium_connector.name }}</a></li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No Debezium connectors are available.</p>
-{% endif %}
