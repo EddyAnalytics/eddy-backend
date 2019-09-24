@@ -67,7 +67,7 @@ def model_to_query(model, node):
 # factory for mutate methods for Create* mutations
 def mutate_factory_create(model, arguments):
     @classmethod
-    def mutate(cls, self, info, **kwargs):
+    def mutate(cls, root, info, **kwargs):
         target = model()
         for argument_name, argument_type in arguments.__dict__.items():
             if argument_name in kwargs.keys():
@@ -103,7 +103,7 @@ def model_to_create(model, node):
 # factory for mutate methods for Update* mutations
 def mutate_factory_update(model, arguments):
     @classmethod
-    def mutate(cls, self, info, **kwargs):
+    def mutate(cls, root, info, **kwargs):
         id = kwargs.get('id')
 
         if id is None:
@@ -150,7 +150,7 @@ def model_to_update(model, node):
 # factory for mutate methods for Delete* mutations
 def mutate_factory_delete(model, arguments):
     @classmethod
-    def mutate(cls, self, info, **kwargs):
+    def mutate(cls, root, info, **kwargs):
         id = kwargs.get('id')
 
         if id is None:
