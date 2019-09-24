@@ -20,7 +20,10 @@ def snake_to_camel(string):
 def fields_to_arguments(fields):
     django_type_to_graphene_type = {
         models.IntegerField: graphene.Int,
-        models.CharField: graphene.String
+        models.CharField: graphene.String,
+        models.DateTimeField: graphene.DateTime,
+        models.BooleanField: graphene.Boolean,
+        models.EmailField: graphene.String,  # TODO maybe change e-mail field graphene type
     }
 
     arguments = dict()
@@ -28,6 +31,8 @@ def fields_to_arguments(fields):
         if isinstance(field, models.AutoField):
             pass
         elif isinstance(field, models.OneToOneField):
+            arguments[field.name + '_id'] = graphene.ID()
+        elif isinstance(field, models.ForeignKey):
             arguments[field.name + '_id'] = graphene.ID()
         else:
             arguments[field.name] = django_type_to_graphene_type[type(field)]()
