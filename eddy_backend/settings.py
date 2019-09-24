@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'graphene_django',
     'debezium_connectors',
-    'authentication'
+    'authentication',
+    'workspaces',
 ]
 
 MIDDLEWARE = [
