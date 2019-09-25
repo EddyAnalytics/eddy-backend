@@ -3,6 +3,7 @@ from django.db import models
 
 # Create your models here.
 class DebeziumConnectorConfig(models.Model):
+    id = models.AutoField(primary_key=True)
     connector_class = models.CharField(default='io.debezium.connector.mysql.MySqlConnector', max_length=200)
     tasks_max = models.IntegerField(default=1)
     database_hostname = models.CharField(default='mysql', max_length=200)
@@ -23,6 +24,7 @@ class DebeziumConnectorConfig(models.Model):
 
 
 class DebeziumConnector(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(default='inventory-connector', max_length=200)
     config = models.OneToOneField(DebeziumConnectorConfig, related_name='connector', blank=True, null=True,
                                   on_delete=models.SET_NULL)

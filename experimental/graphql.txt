@@ -21,7 +21,7 @@ mutation Create {
   }
 }
 
-query ReadOne($id: ID!) {
+query Read($id: IntID) {
   debeziumConnector(id: $id) {
     id
     name
@@ -44,31 +44,27 @@ query ReadOne($id: ID!) {
 
 query ReadList {
   allDebeziumConnector {
-    edges {
-      node {
-        id
-        name
-        config {
-          id
-          connectorClass
-          tasksMax
-          databaseHostname
-          databasePort
-          databaseUser
-          databasePassword
-          databaseServerId
-          databaseServerName
-          databaseWhitelist
-          databaseHistoryKafkaBootstrapServers
-          databaseHistoryKafkaTopic
-        }
-      }
+    id
+    name
+    config {
+      id
+      connectorClass
+      tasksMax
+      databaseHostname
+      databasePort
+      databaseUser
+      databasePassword
+      databaseServerId
+      databaseServerName
+      databaseWhitelist
+      databaseHistoryKafkaBootstrapServers
+      databaseHistoryKafkaTopic
     }
   }
 }
 
-mutation Update($id: ID!) {
-  updateDebeziumConnector(id: $id) {
+mutation Update($id: IntID, $updateId: IntID) {
+  updateDebeziumConnector(id: $id, configId: $updateId) {
     debeziumConnector {
       id
       name
@@ -90,25 +86,11 @@ mutation Update($id: ID!) {
   }
 }
 
-mutation Delete($id: ID!) {
+mutation Delete($id: IntID) {
   deleteDebeziumConnector(id: $id) {
     debeziumConnector {
-      id
       name
-      config {
-        id
-        connectorClass
-        tasksMax
-        databaseHostname
-        databasePort
-        databaseUser
-        databasePassword
-        databaseServerId
-        databaseServerName
-        databaseWhitelist
-        databaseHistoryKafkaBootstrapServers
-        databaseHistoryKafkaTopic
-      }
+      id
     }
   }
 }
@@ -136,8 +118,29 @@ mutation CreateConfig {
   }
 }
 
-query ReadOneConfig($id: ID!) {
-  debeziumConnectorConfig(id: $id) {
+query ReadConfig($id: IntID) {
+  debeziumConnector(id: $id) {
+    id
+    name
+    config {
+      id
+      connectorClass
+      tasksMax
+      databaseHostname
+      databasePort
+      databaseUser
+      databasePassword
+      databaseServerId
+      databaseServerName
+      databaseWhitelist
+      databaseHistoryKafkaBootstrapServers
+      databaseHistoryKafkaTopic
+    }
+  }
+}
+
+query ReadListConfig {
+  allDebeziumConnectorConfig {
     id
     connectorClass
     tasksMax
@@ -157,33 +160,8 @@ query ReadOneConfig($id: ID!) {
   }
 }
 
-query ReadListConfig {
-  allDebeziumConnectorConfig {
-    edges {
-      node {
-        id
-        connectorClass
-        tasksMax
-        databaseHostname
-        databasePort
-        databaseUser
-        databasePassword
-        databaseServerId
-        databaseServerName
-        databaseWhitelist
-        databaseHistoryKafkaBootstrapServers
-        databaseHistoryKafkaTopic
-        connector {
-          id
-          name
-        }
-      }
-    }
-  }
-}
-
-mutation UpdateConfig($id: ID!) {
-  updateDebeziumConnectorConfig(id: $id) {
+mutation UpdateConfig($id: IntID, $updateId: IntID) {
+  updateDebeziumConnectorConfig(id: $id, connectorId: $updateId) {
     debeziumConnectorConfig {
       id
       connectorClass
@@ -205,7 +183,7 @@ mutation UpdateConfig($id: ID!) {
   }
 }
 
-mutation DeleteConfig($id: ID!) {
+mutation DeleteConfig($id: IntID) {
   deleteDebeziumConnectorConfig(id: $id) {
     debeziumConnectorConfig {
       id

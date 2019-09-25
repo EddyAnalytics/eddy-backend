@@ -46,10 +46,18 @@ def fields_to_arguments(fields):
     for field in fields:
         if isinstance(field, models.AutoField):
             pass
-        elif isinstance(field, models.OneToOneField):
+        elif isinstance(field, models.OneToOneRel):
+            # reverse of self
             arguments[field.name + '_id'] = IntID()
         elif isinstance(field, models.ForeignKey):
+            # reverse of ManyToOneRel
             arguments[field.name + '_id'] = IntID()
+        elif isinstance(field, models.ManyToOneRel):
+            # reverse of ForeignKey
+            arguments[field.name + '_ids'] = graphene.List(IntID)
+        elif isinstance(field, models.ManyToManyField):
+            # Mostly for user groups and permissions (django stuff not our own stuff)
+            arguments[field.name + '_ids'] = graphene.List(IntID)
         else:
             arguments[field.name] = django_type_to_graphene_type[type(field)]()
 
@@ -67,7 +75,7 @@ def model_to_type_(model):
     type_ = type(
         model.__name__ + 'Type',
         (DjangoObjectType,),
-        {'Meta': meta}
+        {'Meta': meta, 'id': IntID()}
     )
 
     return type_
@@ -126,6 +134,9 @@ def mutate_factory_create(model, arguments):
                 if argument_type == IntID:
                     foreign = model.objects.get(pk=kwargs.get(argument_name))
                     setattr(target, argument_name, foreign)
+                elif argument_type == graphene.List(IntID):
+                    foreigns = model.objects.filter(id__in=kwargs.get(argument_name))
+                    setattr(target, argument_name, foreigns)
                 else:
                     setattr(target, argument_name, kwargs.get(argument_name))
 
@@ -140,7 +151,7 @@ def model_to_create(model, type_):
     arguments = type(
         'Arguments',
         (),
-        fields_to_arguments(model._meta.fields)
+        fields_to_arguments(model._meta.get_fields())
     )
 
     create = type(
@@ -173,6 +184,9 @@ def mutate_factory_update(model, arguments):
                 if argument_type == IntID:
                     foreign = model.objects.get(pk=kwargs.get(argument_name))
                     setattr(target, argument_name, foreign)
+                elif argument_type == graphene.List(IntID):
+                    foreigns = model.objects.filter(id__in=kwargs.get(argument_name))
+                    setattr(target, argument_name, foreigns)
                 else:
                     setattr(target, argument_name, kwargs.get(argument_name))
 
@@ -187,7 +201,7 @@ def model_to_update(model, type_):
     arguments = type(
         'Arguments',
         (),
-        fields_to_arguments(model._meta.fields)
+        fields_to_arguments(model._meta.get_fields())
     )
 
     setattr(arguments, 'id', IntID())
@@ -221,6 +235,7 @@ def mutate_factory_delete(model, arguments):
         return cls(**{camel_to_snake(model.__name__): None})
 
     return mutate
+
 
 # dynamically generate Delete* classes (DeleteDebeziumConnector, DeleteDebeziumConnectorConfig)
 def model_to_delete(model, type_):
