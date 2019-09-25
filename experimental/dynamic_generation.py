@@ -2,8 +2,24 @@ import re
 
 import graphene
 from django.db import models
+from graphene import Scalar
 from graphene_django import DjangoObjectType
-from graphene_django.filter import DjangoFilterConnectionField
+from graphql.language import ast
+
+
+class IntID(Scalar):
+    @staticmethod
+    def serialize(value):
+        return int(value)
+
+    @staticmethod
+    def parse_literal(node):
+        if isinstance(node, ast.IntValue):
+            return int(node.value)
+
+    @staticmethod
+    def parse_value(value):
+        return int(value)
 
 
 # convert a snake case string to a camel case string
@@ -31,39 +47,69 @@ def fields_to_arguments(fields):
         if isinstance(field, models.AutoField):
             pass
         elif isinstance(field, models.OneToOneField):
-            arguments[field.name + '_id'] = graphene.ID()
+            arguments[field.name + '_id'] = IntID()
         elif isinstance(field, models.ForeignKey):
-            arguments[field.name + '_id'] = graphene.ID()
+            arguments[field.name + '_id'] = IntID()
         else:
             arguments[field.name] = django_type_to_graphene_type[type(field)]()
 
     return arguments
 
 
-# dynamically generate *Node classes (DebeziumConnectorNode, DebeziumConnectorConfigNode)
-def model_to_node(model):
+# dynamically generate *Type classes (DebeziumConnectorType, DebeziumConnectorConfigType)
+def model_to_type_(model):
     meta = type(
         'Meta',
         (),
-        {'model': model, 'fields': '__all__', 'filter_fields': '__all__', 'interfaces': (graphene.relay.Node,)}
+        {'model': model}
     )
 
-    node = type(
-        model.__name__ + 'Node',
+    type_ = type(
+        model.__name__ + 'Type',
         (DjangoObjectType,),
         {'Meta': meta}
     )
 
-    return node
+    return type_
+
+
+# factory for resolve methods for * Queries
+def resolve_factory(model):
+    def resolve(root, info, **kwargs):
+        id = kwargs.get('id')
+
+        if id is None:
+            return None
+
+        target = model.objects.get(pk=id)
+
+        if target is None:
+            return None
+
+        return target
+
+    return resolve
+
+
+# factory for resolve_all methods for all* Queries
+def resolve_all_factory(model):
+    def resolve_all(root, info, **kwargs):
+        target = model.objects.all()
+
+        return target
+
+    return resolve_all
 
 
 # dynamically generate *Query classes (DebeziumConnectorQuery, DebeziumConnectorConfigQuery)
-def model_to_query(model, node):
+def model_to_query(model, type_):
     query = type(
         model.__name__ + 'Query',
         (graphene.ObjectType,),
-        {camel_to_snake(model.__name__): graphene.Node.Field(node),
-         'all_' + camel_to_snake(model.__name__): DjangoFilterConnectionField(node)}
+        {camel_to_snake(model.__name__): graphene.Field(type_, id=IntID()),
+         'resolve_' + camel_to_snake(model.__name__): resolve_factory(model),
+         'all_' + camel_to_snake(model.__name__): graphene.List(type_),
+         'resolve_all_' + camel_to_snake(model.__name__): resolve_all_factory(model)},
     )
 
     return query
@@ -74,13 +120,15 @@ def mutate_factory_create(model, arguments):
     @classmethod
     def mutate(cls, root, info, **kwargs):
         target = model()
+
         for argument_name, argument_type in arguments.__dict__.items():
             if argument_name in kwargs.keys():
-                if argument_type == graphene.ID:
-                    foreign = graphene.relay.Node.get_node_from_global_id(info, kwargs.get(argument_name))
+                if argument_type == IntID:
+                    foreign = model.objects.get(pk=kwargs.get(argument_name))
                     setattr(target, argument_name, foreign)
                 else:
                     setattr(target, argument_name, kwargs.get(argument_name))
+
         target.save()
         return cls(**{camel_to_snake(model.__name__): target})
 
@@ -88,7 +136,7 @@ def mutate_factory_create(model, arguments):
 
 
 # dynamically generate Create* classes (CreateDebeziumConnector, CreateDebeziumConnectorConfig)
-def model_to_create(model, node):
+def model_to_create(model, type_):
     arguments = type(
         'Arguments',
         (),
@@ -98,7 +146,8 @@ def model_to_create(model, node):
     create = type(
         'Create' + model.__name__,
         (graphene.Mutation,),
-        {'Arguments': arguments, camel_to_snake(model.__name__): graphene.Field(node),
+        {'Arguments': arguments,
+         camel_to_snake(model.__name__): graphene.Field(type_),
          'mutate': mutate_factory_create(model, arguments)}
     )
 
@@ -114,38 +163,40 @@ def mutate_factory_update(model, arguments):
         if id is None:
             return None
 
-        target = graphene.relay.Node.get_node_from_global_id(info, id)
+        target = model.objects.get(pk=id)
 
         if target is None:
             return None
 
         for argument_name, argument_type in arguments.__dict__.items():
             if argument_name in kwargs.keys():
-                if argument_type == graphene.ID:
-                    foreign = graphene.relay.Node.get_node_from_global_id(info, kwargs.get(argument_name))
+                if argument_type == IntID:
+                    foreign = model.objects.get(pk=kwargs.get(argument_name))
                     setattr(target, argument_name, foreign)
                 else:
                     setattr(target, argument_name, kwargs.get(argument_name))
+
         target.save()
         return cls(**{camel_to_snake(model.__name__): target})
 
     return mutate
 
 
-# dynamically generate Update* classes (CreateDebeziumConnector, CreateDebeziumConnectorConfig)
-def model_to_update(model, node):
+# dynamically generate Update* classes (UpdateDebeziumConnector, UpdateDebeziumConnectorConfig)
+def model_to_update(model, type_):
     arguments = type(
         'Arguments',
         (),
         fields_to_arguments(model._meta.fields)
     )
 
-    setattr(arguments, 'id', graphene.ID())
+    setattr(arguments, 'id', IntID())
 
     update = type(
         'Update' + model.__name__,
         (graphene.Mutation,),
-        {'Arguments': arguments, camel_to_snake(model.__name__): graphene.Field(node),
+        {'Arguments': arguments,
+         camel_to_snake(model.__name__): graphene.Field(type_),
          'mutate': mutate_factory_update(model, arguments)}
     )
 
@@ -161,30 +212,30 @@ def mutate_factory_delete(model, arguments):
         if id is None:
             return None
 
-        target = graphene.relay.Node.get_node_from_global_id(info, id)
+        target = model.objects.get(pk=id)
 
         if target is None:
             return None
 
         target.delete()
-        return cls(**{camel_to_snake(model.__name__): target})
+        return cls(**{camel_to_snake(model.__name__): None})
 
     return mutate
 
-
-def model_to_delete(model, node):
+# dynamically generate Delete* classes (DeleteDebeziumConnector, DeleteDebeziumConnectorConfig)
+def model_to_delete(model, type_):
     arguments = type(
         'Arguments',
         (),
         {}
     )
 
-    setattr(arguments, 'id', graphene.ID())
+    setattr(arguments, 'id', IntID())
 
     delete = type(
         'Delete' + model.__name__,
         (graphene.Mutation,),
-        {'Arguments': arguments, camel_to_snake(model.__name__): graphene.Field(node),
+        {'Arguments': arguments, camel_to_snake(model.__name__): graphene.Field(type_),
          'mutate': mutate_factory_delete(model, arguments)}
     )
 
@@ -192,16 +243,18 @@ def model_to_delete(model, node):
 
 
 # dynamically generate *Mutation classes (DebeziumConnectorMutation, DebeziumConnectorConfigMutation)
-def model_to_mutation(model, node):
-    create = model_to_create(model, node)
-    update = model_to_update(model, node)
-    delete = model_to_delete(model, node)
+def model_to_mutation(model, type_):
+    create = model_to_create(model, type_)
+    update = model_to_update(model, type_)
+    delete = model_to_delete(model, type_)
     mutation = type(
         model.__name__ + 'Mutation',
         (object,),
-        {camel_to_snake(create.__name__): create.Field(),
-         camel_to_snake(update.__name__): update.Field(),
-         camel_to_snake(delete.__name__): delete.Field()}
+        {
+            camel_to_snake(create.__name__): create.Field(),
+            camel_to_snake(update.__name__): update.Field(),
+            camel_to_snake(delete.__name__): delete.Field()
+        }
     )
 
     return mutation
