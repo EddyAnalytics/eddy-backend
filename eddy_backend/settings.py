@@ -133,8 +133,4 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-GRAPHQL_JWT = {
-    'JWT_ALLOW_ARGUMENT': True,
-}
-
 AUTH_USER_MODEL = 'authentication.User'

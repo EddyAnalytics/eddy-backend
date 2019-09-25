@@ -126,9 +126,9 @@ def model_to_query(model, type_):
     query = type(
         model.__name__ + 'Query',
         (graphene.ObjectType,),
-        {camel_to_snake(model.__name__): graphene.Field(type_, id=IntID(), token=graphene.String()),
+        {camel_to_snake(model.__name__): graphene.Field(type_, id=IntID()),
          'resolve_' + camel_to_snake(model.__name__): resolve_factory(model),
-         'all_' + camel_to_snake(model.__name__): graphene.List(type_, token=graphene.String()),
+         'all_' + camel_to_snake(model.__name__): graphene.List(type_),
          'resolve_all_' + camel_to_snake(model.__name__): resolve_all_factory(model)},
     )
 
@@ -173,7 +173,6 @@ def model_to_create(model, type_):
 
     if hasattr(arguments, 'user_id'):
         delattr(arguments, 'user_id')
-    setattr(arguments, 'token', graphene.String())
 
     create = type(
         'Create' + model.__name__,
@@ -236,7 +235,6 @@ def model_to_update(model, type_):
 
     if hasattr(arguments, 'user_id'):
         delattr(arguments, 'user_id')
-    setattr(arguments, 'token', graphene.String())
 
     update = type(
         'Update' + model.__name__,
@@ -288,7 +286,6 @@ def model_to_delete(model, type_):
 
     if hasattr(arguments, 'user_id'):
         delattr(arguments, 'user_id')
-    setattr(arguments, 'token', graphene.String())
 
     delete = type(
         'Delete' + model.__name__,
