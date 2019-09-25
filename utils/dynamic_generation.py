@@ -6,6 +6,8 @@ from graphene import Scalar
 from graphene_django import DjangoObjectType
 from graphql.language import ast
 
+import authentication.models
+
 
 class IntID(Scalar):
     @staticmethod
@@ -94,6 +96,13 @@ def resolve_factory(model):
         if target is None:
             return None
 
+        if model == authentication.models.User:
+            if target != info.context.user:
+                return None
+        else:
+            if target.user != info.context.user:
+                return None
+
         return target
 
     return resolve
@@ -102,9 +111,12 @@ def resolve_factory(model):
 # factory for resolve_all methods for all* Queries
 def resolve_all_factory(model):
     def resolve_all(root, info, **kwargs):
-        target = model.objects.all()
+        if model == authentication.models.User:
+            targets = [info.context.user]
+        else:
+            targets = model.objects.filter(user=info.context.user)
 
-        return target
+        return targets
 
     return resolve_all
 
@@ -114,9 +126,9 @@ def model_to_query(model, type_):
     query = type(
         model.__name__ + 'Query',
         (graphene.ObjectType,),
-        {camel_to_snake(model.__name__): graphene.Field(type_, id=IntID()),
+        {camel_to_snake(model.__name__): graphene.Field(type_, id=IntID(), token=graphene.String()),
          'resolve_' + camel_to_snake(model.__name__): resolve_factory(model),
-         'all_' + camel_to_snake(model.__name__): graphene.List(type_),
+         'all_' + camel_to_snake(model.__name__): graphene.List(type_, token=graphene.String()),
          'resolve_all_' + camel_to_snake(model.__name__): resolve_all_factory(model)},
     )
 
@@ -128,6 +140,11 @@ def mutate_factory_create(model, arguments):
     @classmethod
     def mutate(cls, root, info, **kwargs):
         target = model()
+
+        if model == authentication.models.User:
+            target = info.context.user
+        else:
+            target.user = info.context.user
 
         for argument_name, argument_type in arguments.__dict__.items():
             if argument_name in kwargs.keys():
@@ -154,6 +171,10 @@ def model_to_create(model, type_):
         fields_to_arguments(model._meta.get_fields())
     )
 
+    if hasattr(arguments, 'user_id'):
+        delattr(arguments, 'user_id')
+    setattr(arguments, 'token', graphene.String())
+
     create = type(
         'Create' + model.__name__,
         (graphene.Mutation,),
@@ -178,6 +199,13 @@ def mutate_factory_update(model, arguments):
 
         if target is None:
             return None
+
+        if model == authentication.models.User:
+            if target != info.context.user:
+                return None
+        else:
+            if target.user != info.context.user:
+                return None
 
         for argument_name, argument_type in arguments.__dict__.items():
             if argument_name in kwargs.keys():
@@ -206,6 +234,10 @@ def model_to_update(model, type_):
 
     setattr(arguments, 'id', IntID())
 
+    if hasattr(arguments, 'user_id'):
+        delattr(arguments, 'user_id')
+    setattr(arguments, 'token', graphene.String())
+
     update = type(
         'Update' + model.__name__,
         (graphene.Mutation,),
@@ -231,6 +263,13 @@ def mutate_factory_delete(model, arguments):
         if target is None:
             return None
 
+        if model == authentication.models.User:
+            if target != info.context.user:
+                return None
+        else:
+            if target.user != info.context.user:
+                return None
+
         target.delete()
         return cls(**{camel_to_snake(model.__name__): None})
 
@@ -246,6 +285,10 @@ def model_to_delete(model, type_):
     )
 
     setattr(arguments, 'id', IntID())
+
+    if hasattr(arguments, 'user_id'):
+        delattr(arguments, 'user_id')
+    setattr(arguments, 'token', graphene.String())
 
     delete = type(
         'Delete' + model.__name__,
