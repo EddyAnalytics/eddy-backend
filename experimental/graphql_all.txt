@@ -1,0 +1,23 @@
+query {
+  allUser {
+    id
+  }
+  allProject {
+    id
+  }
+  allWorkspace {
+    id
+  }
+  allIntegration {
+    id
+  }
+  allIntegrationType {
+    id
+  }
+  allDebeziumConnector {
+    id
+  }
+  allDebeziumConnectorConfig {
+    id
+  }
+}
