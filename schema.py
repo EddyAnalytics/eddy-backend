@@ -3,12 +3,13 @@ import graphql_jwt
 
 import authentication.schema
 import debezium_connectors.schema
+import pipelines.schema
 import workspaces.schema
 
 RootQuery = type(
     'RootQuery',
     tuple(
-        authentication.schema.query_list + debezium_connectors.schema.query_list + workspaces.schema.query_list
+        authentication.schema.query_list + debezium_connectors.schema.query_list + pipelines.schema.query_list + workspaces.schema.query_list
     ),
     {}
 )
@@ -16,7 +17,7 @@ RootQuery = type(
 RootMutation = type(
     'RootMutation',
     tuple(
-        authentication.schema.mutation_list + debezium_connectors.schema.mutation_list + workspaces.schema.mutation_list
+        authentication.schema.mutation_list + debezium_connectors.schema.mutation_list + pipelines.schema.mutation_list + workspaces.schema.mutation_list
     ),
     {}
 )
