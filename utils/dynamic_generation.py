@@ -103,12 +103,13 @@ def resolve_factory(model):
         if target is None:
             return None
 
-        if model == authentication.models.User:
-            if target != info.context.user:
-                return None
-        else:
-            if target.user != info.context.user:
-                return None
+        if not info.context.user.is_superuser:
+            if model == authentication.models.User:
+                if target != info.context.user:
+                    return None
+            else:
+                if target.user != info.context.user:
+                    return None
 
         return target
 
@@ -127,7 +128,10 @@ def resolve_all_factory(model):
         if model == authentication.models.User:
             targets = [info.context.user]
         else:
-            targets = model.objects.filter(user=info.context.user)
+            if not info.context.user.is_superuser:
+                targets = model.objects.filter(user=info.context.user)
+            else:
+                targets = model.objects.all()
 
         return targets
 
@@ -224,12 +228,13 @@ def mutate_factory_update(model, arguments):
         if target is None:
             return None
 
-        if model == authentication.models.User:
-            if target != info.context.user:
-                return None
-        else:
-            if target.user != info.context.user:
-                return None
+        if not info.context.user.is_superuser:
+            if model == authentication.models.User:
+                if target != info.context.user:
+                    return None
+            else:
+                if target.user != info.context.user:
+                    return None
 
         for argument_name, argument_type in arguments.__dict__.items():
             if argument_name in kwargs.keys():
@@ -294,12 +299,13 @@ def mutate_factory_delete(model, arguments):
         if target is None:
             return None
 
-        if model == authentication.models.User:
-            if target != info.context.user:
-                return None
-        else:
-            if target.user != info.context.user:
-                return None
+        if not info.context.user.is_superuser:
+            if model == authentication.models.User:
+                if target != info.context.user:
+                    return None
+            else:
+                if target.user != info.context.user:
+                    return None
 
         target.delete()
         return cls(**{camel_to_snake(model.__name__): None})
