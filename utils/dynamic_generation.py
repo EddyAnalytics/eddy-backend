@@ -7,7 +7,7 @@ from graphene_django import DjangoObjectType
 from graphql.language import ast
 
 import authentication.models
-from authentication.exceptions import UserNotAuthenticatedException
+from authentication.exceptions import UserNotAuthenticatedException, UserNotAuthorizedException
 
 
 class IntID(Scalar):
@@ -88,7 +88,10 @@ def model_to_type_(model):
 def resolve_factory(model):
     def resolve(root, info, **kwargs):
         if not isinstance(info.context.user, authentication.models.User):
-            raise UserNotAuthenticatedException('User not authenticated.')
+            raise UserNotAuthenticatedException()
+
+        if model.requires_superuser and not info.context.user.is_superuser:
+            raise UserNotAuthorizedException()
 
         id = kwargs.get('id')
 
@@ -117,6 +120,9 @@ def resolve_all_factory(model):
     def resolve_all(root, info, **kwargs):
         if not isinstance(info.context.user, authentication.models.User):
             raise UserNotAuthenticatedException()
+
+        if model.requires_superuser and not info.context.user.is_superuser:
+            raise UserNotAuthorizedException()
 
         if model == authentication.models.User:
             targets = [info.context.user]
@@ -149,16 +155,19 @@ def mutate_factory_create(model, arguments):
         if not isinstance(info.context.user, authentication.models.User):
             raise UserNotAuthenticatedException()
 
+        if model.requires_superuser and not info.context.user.is_superuser:
+            raise UserNotAuthorizedException()
+
         target = model()
 
-        if model == authentication.models.User:
-            target = info.context.user
-        else:
+        if model != authentication.models.User:
             target.user = info.context.user
 
         for argument_name, argument_type in arguments.__dict__.items():
             if argument_name in kwargs.keys():
-                if argument_type == IntID:
+                if argument_name == 'password':
+                    target.set_password(kwargs.get(argument_name))
+                elif argument_type == IntID:
                     foreign = model.objects.get(pk=kwargs.get(argument_name))
                     setattr(target, argument_name, foreign)
                 elif argument_type == graphene.List(IntID):
@@ -202,6 +211,9 @@ def mutate_factory_update(model, arguments):
         if not isinstance(info.context.user, authentication.models.User):
             raise UserNotAuthenticatedException()
 
+        if model.requires_superuser and not info.context.user.is_superuser:
+            raise UserNotAuthorizedException()
+
         id = kwargs.get('id')
 
         if id is None:
@@ -221,7 +233,9 @@ def mutate_factory_update(model, arguments):
 
         for argument_name, argument_type in arguments.__dict__.items():
             if argument_name in kwargs.keys():
-                if argument_type == IntID:
+                if argument_name == 'password':
+                    target.set_password(kwargs.get(argument_name))
+                elif argument_type == IntID:
                     foreign = model.objects.get(pk=kwargs.get(argument_name))
                     setattr(target, argument_name, foreign)
                 elif argument_type == graphene.List(IntID):
@@ -266,6 +280,9 @@ def mutate_factory_delete(model, arguments):
     def mutate(cls, root, info, **kwargs):
         if not isinstance(info.context.user, authentication.models.User):
             raise UserNotAuthenticatedException()
+
+        if model.requires_superuser and not info.context.user.is_superuser:
+            raise UserNotAuthorizedException()
 
         id = kwargs.get('id')
 

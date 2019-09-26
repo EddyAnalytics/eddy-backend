@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'debezium_connectors',
     'authentication',
     'workspaces',
+    'pipelines',
 ]
 
 MIDDLEWARE = [
