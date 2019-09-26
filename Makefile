@@ -1,6 +1,6 @@
 migrate:
-	python3 manage.py makemigrations --no-input
-	python3 manage.py migrate --no-input
+	python3 manage.py makemigrations
+	python3 manage.py migrate
 
 dev:
 	python3 manage.py createadminuser
