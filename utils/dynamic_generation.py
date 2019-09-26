@@ -7,6 +7,7 @@ from graphene_django import DjangoObjectType
 from graphql.language import ast
 
 import authentication.models
+from authentication.exceptions import UserNotAuthenticatedException
 
 
 class IntID(Scalar):
@@ -86,6 +87,9 @@ def model_to_type_(model):
 # factory for resolve methods for * Queries
 def resolve_factory(model):
     def resolve(root, info, **kwargs):
+        if not isinstance(info.context.user, authentication.models.User):
+            raise UserNotAuthenticatedException('User not authenticated.')
+
         id = kwargs.get('id')
 
         if id is None:
@@ -111,6 +115,9 @@ def resolve_factory(model):
 # factory for resolve_all methods for all* Queries
 def resolve_all_factory(model):
     def resolve_all(root, info, **kwargs):
+        if not isinstance(info.context.user, authentication.models.User):
+            raise UserNotAuthenticatedException()
+
         if model == authentication.models.User:
             targets = [info.context.user]
         else:
@@ -139,6 +146,9 @@ def model_to_query(model, type_):
 def mutate_factory_create(model, arguments):
     @classmethod
     def mutate(cls, root, info, **kwargs):
+        if not isinstance(info.context.user, authentication.models.User):
+            raise UserNotAuthenticatedException()
+
         target = model()
 
         if model == authentication.models.User:
@@ -189,6 +199,9 @@ def model_to_create(model, type_):
 def mutate_factory_update(model, arguments):
     @classmethod
     def mutate(cls, root, info, **kwargs):
+        if not isinstance(info.context.user, authentication.models.User):
+            raise UserNotAuthenticatedException()
+
         id = kwargs.get('id')
 
         if id is None:
@@ -251,6 +264,9 @@ def model_to_update(model, type_):
 def mutate_factory_delete(model, arguments):
     @classmethod
     def mutate(cls, root, info, **kwargs):
+        if not isinstance(info.context.user, authentication.models.User):
+            raise UserNotAuthenticatedException()
+
         id = kwargs.get('id')
 
         if id is None:
