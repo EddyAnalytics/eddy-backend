@@ -19,12 +19,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', default='!e*6)vw88z&%p7j7vs0e-g=e3cx!pccbm6)z#ef88%ur-sn-2*')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if os.environ.get('DEBUG', default='False') == 'True' else False
+DEBUG = True if os.environ.get('DEBUG') == 'True' else False
 
-ALLOWED_HOSTS = [os.environ.get('HOST', default='127.0.0.1')]
+ALLOWED_HOSTS = [os.environ.get('HOST')]
 
 # Application definition
 
@@ -77,14 +77,24 @@ WSGI_APPLICATION = 'eddy_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-if os.environ.get('DB_TYPE', default='sqlite') == 'sqlite':
+if os.environ.get('DB_TYPE') == 'sqlite':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, os.environ.get('DB_NAME', default='db.sqlite3')),
+            'NAME': os.path.join(BASE_DIR, os.environ.get('DB_NAME')),
         }
     }
-
+elif os.environ.get('DB_TYPE') == 'mysql':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('MYSQL_USER'),
+            'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
+            'HOST': os.environ.get('MYSQL_HOST'),
+            'PORT': os.environ.get('MYSQL_PORT'),
+        }
+    }
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 

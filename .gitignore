@@ -2,5 +2,5 @@
 eddy_backend/__pycache__
 __pycache__
 venv
-db.sqlite3
+db_eddy_backend
 .env

@@ -3,3 +3,4 @@ Django
 graphene-django
 django-filter
 django-graphql-jwt
+mysqlclient
