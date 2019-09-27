@@ -7,13 +7,11 @@ services:
       - 8000
     links:
       - mysql
-    restart: always
     env_file: .env
 
   mysql:
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
-    restart: always
     environment:
       MYSQL_DATABASE: db_eddy_backend
       MYSQL_ROOT_PASSWORD: mysqlrootpassword

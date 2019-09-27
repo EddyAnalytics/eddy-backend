@@ -8,8 +8,7 @@ if [ "$1" = 'eddy-backend' ]; then
         python3 manage.py createadminuser
         exec uwsgi --ini uwsgi.ini
     else
-        until mysql $MYSQL_HOST:$MYSQL_PORT -u $MYSQL_USER -p $MYSQL_PASSWORD exec \"SHOW DATABASES\"; do
-          echo 'sleep'
+        until mysql --host=$MYSQL_HOST --port=$MYSQL_PORT --user=$MYSQL_USER --password=$MYSQL_PASSWORD --execute="SHOW DATABASES;" $DB_NAME; do
           sleep 1
         done
         python3 manage.py collectstatic
