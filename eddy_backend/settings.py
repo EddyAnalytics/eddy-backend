@@ -24,7 +24,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='!e*6)vw88z&%p7j7vs0e-g=e3cx!p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.environ.get('DEBUG', default='False') == 'True' else False
 
-ALLOWED_HOSTS = [os.environ.get('HOST', default='127.0.0.1')]
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', default='[\'127.0.0.1]\']')
 
 # Application definition
 
