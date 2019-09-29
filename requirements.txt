@@ -3,4 +3,5 @@ Django
 graphene-django
 django-filter
 django-graphql-jwt
+django-cors-headers
 mysqlclient
