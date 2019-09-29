@@ -4,7 +4,7 @@ services:
     build:
       context: .
     ports:
-      - 8000
+      - 8881:8000
     links:
       - mysql
     env_file: .env
