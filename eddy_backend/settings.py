@@ -148,3 +148,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
+
+GRAPHQL_JWT = {
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+}
