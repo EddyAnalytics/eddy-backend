@@ -17,9 +17,9 @@ mutation_list = [utils.dynamic_generation.model_to_mutation(model, type__dict[na
 # TODO temporary redis testing code
 class SendCeleryTask(graphene.Mutation):
     class Arguments:
-        input_topic = graphene.String()
-        sql_query = graphene.String()
-        output_topic = graphene.String()
+        input_topic = graphene.String(required=True)
+        sql_query = graphene.String(required=True)
+        output_topic = graphene.String(required=True)
 
     send_celery_task = graphene.Int()
 
