@@ -29,7 +29,8 @@ class Query(RootQuery, graphene.ObjectType):
     pass
 
 
-class Mutation(RootMutation, graphene.ObjectType):
+# TODO temporary celery testing code
+class Mutation(pipelines.schema.SendCeleryTaskMutation, RootMutation, graphene.ObjectType):
     # This class will inherit from multiple Mutations
     # as we begin to add more apps to our project
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()

@@ -5,3 +5,5 @@ django-filter
 django-graphql-jwt
 django-cors-headers
 mysqlclient
+# TODO temporary celery testing code
+celery[redis]

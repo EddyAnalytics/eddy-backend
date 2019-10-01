@@ -1,5 +1,7 @@
 import django.db.models
+import graphene
 
+import eddy_backend.celery
 import pipelines.models
 import utils.dynamic_generation
 
@@ -10,3 +12,20 @@ query_list = [utils.dynamic_generation.model_to_query(model, type__dict[name]) f
               model_dict.items()]
 mutation_list = [utils.dynamic_generation.model_to_mutation(model, type__dict[name]) for name, model in
                  model_dict.items()]
+
+
+# TODO temporary redis testing code
+class SendCeleryTask(graphene.Mutation):
+    class Arguments:
+        pass
+
+    send_celery_task = graphene.Int()
+
+    @classmethod
+    def mutate(cls, root, info, **kwargs):
+        eddy_backend.celery.app.send_task('')
+        return SendCeleryTask(send_celery_task=0)
+
+
+class SendCeleryTaskMutation(object):
+    send_celery_task = SendCeleryTask.Field()

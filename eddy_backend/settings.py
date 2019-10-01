@@ -148,3 +148,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
+
+# TODO temporary redis testing code
+CELERY_BROKER_TRANSPORT = os.environ.get('CELERY_BROKER_TRANSPORT', default='redis')
+CELERY_BROKER_HOST = os.environ.get('CELERY_BROKER_HOST', default='localhost')
+CELERY_BROKER_PORT = os.environ.get('CELERY_BROKER_PORT', default='6379')
