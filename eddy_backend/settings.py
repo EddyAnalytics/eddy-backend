@@ -149,6 +149,10 @@ AUTHENTICATION_BACKENDS = [
 
 AUTH_USER_MODEL = 'authentication.User'
 
+GRAPHQL_JWT = {
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+}
+
 # TODO temporary redis testing code
 CELERY_BROKER_TRANSPORT = os.environ.get('CELERY_BROKER_TRANSPORT', default='redis')
 CELERY_BROKER_HOST = os.environ.get('CELERY_BROKER_HOST', default='localhost')
