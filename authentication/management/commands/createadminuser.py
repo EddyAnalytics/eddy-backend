@@ -14,5 +14,6 @@ class Command(BaseCommand):
             admin_user.is_superuser = True
             admin_user.is_staff = True
             admin_user.save()
+            self.stdout.write('Admin user created')
         else:
             self.stdout.write('Admin user already exists')

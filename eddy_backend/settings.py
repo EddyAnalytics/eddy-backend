@@ -18,14 +18,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY', default='!e*6)vw88z&%p7j7vs0e-g=e3cx!pccbm6)z#ef88%ur-sn-2*')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if os.environ.get('DEBUG') == 'True' else False
+DEBUG = True if os.environ.get('DEBUG', default='True') == 'True' else False
 
-ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOSTS')]
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
-CORS_ORIGIN_ALLOW_ALL = True if os.environ.get('CORS_ORIGIN_ALLOW_ALL') == 'True' else False
+CORS_ORIGIN_ALLOW_ALL = True if os.environ.get('CORS_ORIGIN_ALLOW_ALL', default='True') == 'True' else False
 
 # Application definition
 INSTALLED_APPS = [
@@ -79,14 +79,7 @@ WSGI_APPLICATION = 'eddy_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-if os.environ.get('DB_TYPE') == 'sqlite':
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, os.environ.get('DB_NAME')),
-        }
-    }
-elif os.environ.get('DB_TYPE') == 'mysql':
+if os.environ.get('DB_TYPE', default='sqlite') == 'mysql':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -97,6 +90,14 @@ elif os.environ.get('DB_TYPE') == 'mysql':
             'PORT': os.environ.get('MYSQL_PORT'),
         }
     }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, os.environ.get('DB_NAME', default='db_eddy_backend')),
+        }
+    }
+
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
