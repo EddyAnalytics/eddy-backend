@@ -20,13 +20,15 @@ class SendCeleryTask(graphene.Mutation):
         input_topic = graphene.String(required=True)
         sql_query = graphene.String(required=True)
         output_topic = graphene.String(required=True)
+        in_schema = graphene.String(required=True)
+        out_schema = graphene.String(required=True)
 
     ok = graphene.Int()
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
         eddy_backend.celery.app.send_task('app.submit_flink_sql', (
-            kwargs.get('input_topic'), kwargs.get('output_topic'), kwargs.get('sql_query')))
+            kwargs.get('input_topic'), kwargs.get('output_topic'), kwargs.get('sql_query'), kwargs.get('in_schema'), kwargs.get('out_schema')))
         return SendCeleryTask(ok=0)
 
 
