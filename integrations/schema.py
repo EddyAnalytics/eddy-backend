@@ -7,10 +7,10 @@ from integrations import models
 from integrations.models import DebeziumConnector, DebeziumConnectorConfig, Integration
 from utils.exceptions import UnauthorizedException, ForbiddenException, ConflictException, NotFoundException
 from utils.utils import IntID
-# Integration
 from workspaces.models import Workspace
 
 
+# Integration
 class IntegrationType(DjangoObjectType):
     class Meta:
         model = Integration

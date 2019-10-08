@@ -2,7 +2,6 @@ import graphene
 from graphene_django import DjangoObjectType
 
 import eddy_backend.celery
-# Pipeline
 from authentication.models import User
 from authentication.schema import UserType
 from pipelines import models
@@ -12,6 +11,7 @@ from utils.utils import IntID
 from workspaces.models import Project
 
 
+# Pipeline
 class PipelineType(DjangoObjectType):
     class Meta:
         model = Pipeline
