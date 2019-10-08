@@ -6,12 +6,54 @@ services:
     ports:
       - 8881:8000
     links:
-      - mysql
+      - mysql:mysql
     env_file: .env
 
   mysql:
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - 3306:3306
     environment:
       MYSQL_DATABASE: db_eddy_backend
       MYSQL_ROOT_PASSWORD: mysqlrootpassword
+
+  debezium-zookeeper:
+    image: debezium/zookeeper:0.10
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+
+  debezium-kafka:
+    image: debezium/kafka:0.10
+    ports:
+      - 9092:9092
+    links:
+      - debezium-zookeeper:debezium-zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=debezium-zookeeper:2181
+
+  debezium-connect:
+    image: debezium/connect:0.10
+    ports:
+      - 8083:8083
+    links:
+      - debezium-kafka:debezium-kafka
+      - debezium-mysql:debezium-mysql
+    environment:
+      - BOOTSTRAP_SERVERS=debezium-kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+
+  debezium-mysql:
+    image: debezium/example-mysql:0.10
+    ports:
+      - 3307:3307
+    environment:
+      - MYSQL_ROOT_PASSWORD=debezium
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw
+      - MYSQL_TCP_PORT=3307

@@ -4,4 +4,4 @@ migrate:
 
 dev:
 	python3 manage.py createadminuser
-	python3 manage.py runserver
+	python3 manage.py runserver 8881
