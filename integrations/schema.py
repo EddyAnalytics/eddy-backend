@@ -58,6 +58,7 @@ class IntegrationQuery(graphene.ObjectType):
 class CreateIntegration(graphene.Mutation):
     class Arguments:
         workspace_id = IntID(required=True)
+        label = graphene.String(required=True)
         integration_type_id = IntID(required=True)
 
     integration = graphene.Field(IntegrationType)
@@ -99,6 +100,39 @@ class CreateIntegration(graphene.Mutation):
         integration.save()
 
         return CreateIntegration(integration=integration)
+
+
+class UpdateIntegration(graphene.Mutation):
+    class Arguments:
+        id = IntID(required=True)
+        label = graphene.String()
+
+    integration = graphene.Field(IntegrationType)
+
+    @classmethod
+    def mutate(cls, root, info, **kwargs):
+        if not isinstance(info.context.user, User):
+            # any user needs to be authenticated
+            raise UnauthorizedException()
+
+        update_kwargs = dict(kwargs)
+
+        try:
+            integration = Integration.objects.get(pk=kwargs.get('id'))
+        except Integration.DoesNotExist:
+            # any user can only update integrations that exist
+            raise NotFoundException()
+
+        if integration.user != info.context.user:
+            # any user can only update integrations associated to itself
+            raise ForbiddenException()
+
+        for key, value in update_kwargs.items():
+            setattr(integration, key, value)
+
+        integration.save()
+
+        return UpdateIntegration(integration=integration)
 
 
 class DeleteIntegration(graphene.Mutation):
@@ -174,7 +208,7 @@ class IntegrationTypeQuery(graphene.ObjectType):
 
 class CreateIntegrationType(graphene.Mutation):
     class Arguments:
-        pass
+        label = graphene.String(required=True)
 
     integration_type = graphene.Field(IntegrationTypeType)
 
@@ -203,6 +237,7 @@ class CreateIntegrationType(graphene.Mutation):
 class UpdateIntegrationType(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
+        label = graphene.String()
 
     integration_type = graphene.Field(IntegrationTypeType)
 

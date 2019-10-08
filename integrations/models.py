@@ -11,14 +11,14 @@ class Integration(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('authentication.User', models.CASCADE, related_name='integrations')
     workspace = models.ForeignKey('workspaces.Workspace', related_name='integrations', on_delete=models.CASCADE)
+    label = models.CharField(max_length=200)
     integration_type = models.ForeignKey('integrations.IntegrationType', related_name='integrations',
                                          on_delete=models.CASCADE)
 
 
 class IntegrationType(models.Model):
     id = models.AutoField(primary_key=True)
-    # integration type does not need a reference to a user because they are usable by any user
-    # TODO this probably causes issues with users requesting eachothers data
+    label = models.CharField(max_length=200)
 
 
 class DebeziumConnector(models.Model):

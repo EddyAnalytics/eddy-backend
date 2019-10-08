@@ -59,7 +59,7 @@ class PipelineQuery(graphene.ObjectType):
 class CreatePipeline(graphene.Mutation):
     class Arguments:
         project_id = IntID(required=True)
-        name = graphene.String(required=True)
+        label = graphene.String(required=True)
 
     pipeline = graphene.Field(PipelineType)
 
@@ -97,7 +97,7 @@ class CreatePipeline(graphene.Mutation):
 class UpdatePipeline(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
-        name = graphene.String()
+        label = graphene.String()
 
     pipeline = graphene.Field(PipelineType)
 
@@ -204,6 +204,7 @@ class BlockQuery(graphene.ObjectType):
 class CreateBlock(graphene.Mutation):
     class Arguments:
         pipeline_id = IntID(required=True)
+        label = graphene.String(required=True)
         block_type_id = IntID(required=True)
         json_config = graphene.String(required=True)
 
@@ -251,7 +252,8 @@ class CreateBlock(graphene.Mutation):
 class UpdateBlock(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
-        # TODO maybe add blocktype as possible update as well
+        label = graphene.String()
+        # TODO maybe add block_type
         json_config = graphene.String()
 
     block = graphene.Field(BlockType)
@@ -358,7 +360,7 @@ class BlockTypeQuery(graphene.ObjectType):
 
 class CreateBlockType(graphene.Mutation):
     class Arguments:
-        pass
+        label = graphene.String(required=True)
 
     block_type = graphene.Field(BlockTypeType)
 
@@ -387,6 +389,7 @@ class CreateBlockType(graphene.Mutation):
 class UpdateBlockType(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
+        label = graphene.String()
 
     block_type = graphene.Field(BlockTypeType)
 
@@ -469,7 +472,8 @@ class SendCeleryTask(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, **kwargs):
         eddy_backend.celery.app.send_task('app.submit_flink_sql', (
-            kwargs.get('input_topic'), kwargs.get('output_topic'), kwargs.get('sql_query'), kwargs.get('in_schema'), kwargs.get('out_schema')))
+            kwargs.get('input_topic'), kwargs.get('output_topic'), kwargs.get('sql_query'), kwargs.get('in_schema'),
+            kwargs.get('out_schema')))
         return SendCeleryTask(ok=0)
 
 
