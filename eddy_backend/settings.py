@@ -38,9 +38,11 @@ INSTALLED_APPS = [
     'corsheaders',
     'graphene_django',
     'authentication',
+    'workspaces',
     'integrations',
     'pipelines',
-    'workspaces',
+    'dashboards',
+
 ]
 
 MIDDLEWARE = [
