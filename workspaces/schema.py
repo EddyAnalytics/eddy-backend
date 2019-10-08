@@ -53,7 +53,7 @@ class WorkspaceQuery(graphene.ObjectType):
         return all_workspaces
 
 
-class WorkSpaceMutation(object):
+class WorkspaceMutation(object):
     pass
 
 
