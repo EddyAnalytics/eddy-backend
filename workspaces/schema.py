@@ -53,10 +53,6 @@ class WorkspaceQuery(graphene.ObjectType):
         return all_workspaces
 
 
-class WorkspaceMutation(object):
-    pass
-
-
 # Project
 class ProjectType(DjangoObjectType):
     class Meta:
@@ -105,7 +101,7 @@ class ProjectQuery(graphene.ObjectType):
 class CreateProject(graphene.Mutation):
     class Arguments:
         workspace_id = IntID(required=True)
-        name = graphene.String()
+        label = graphene.String()
 
     project = graphene.Field(ProjectType)
 
@@ -142,7 +138,7 @@ class CreateProject(graphene.Mutation):
 class UpdateProject(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
-        name = graphene.String()
+        label = graphene.String()
 
     project = graphene.Field(ProjectType)
 

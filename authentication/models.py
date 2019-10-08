@@ -8,6 +8,8 @@ from workspaces.models import Workspace
 
 class User(AbstractUser):
     id = models.AutoField(primary_key=True)
+    # user reference is not necessary here
+    # label is username
     workspace = models.OneToOneField('workspaces.Workspace', models.CASCADE, related_name='user')
 
 
