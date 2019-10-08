@@ -15,8 +15,10 @@ services:
     ports:
       - 3306:3306
     environment:
-      MYSQL_DATABASE: db_eddy_backend
       MYSQL_ROOT_PASSWORD: mysqlrootpassword
+      MYSQL_DATABASE: db_eddy_backend
+      MYSQL_USER: eddy_backend
+      MYSQL_PASSWORD: mysqlpassword
 
   debezium-zookeeper:
     image: debezium/zookeeper:0.10

@@ -53,6 +53,10 @@ class WorkspaceQuery(graphene.ObjectType):
         return all_workspaces
 
 
+class WorkSpaceMutation(object):
+    pass
+
+
 # Project
 class ProjectType(DjangoObjectType):
     class Meta:
