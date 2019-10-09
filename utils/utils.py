@@ -1,4 +1,6 @@
-from graphene import Scalar
+from django_mysql.models import JSONField
+from graphene import Scalar, JSONString
+from graphene_django.converter import convert_django_field
 from graphql.language import ast
 
 
@@ -15,3 +17,8 @@ class IntID(Scalar):
     @staticmethod
     def parse_value(value):
         return int(value)
+
+
+@convert_django_field.register(JSONField)
+def convert_mysql_json_field_to_graphene_json_string(field, registry=None):
+    return JSONString(description=field.help_text, required=not field.null)
