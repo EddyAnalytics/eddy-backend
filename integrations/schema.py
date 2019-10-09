@@ -60,6 +60,7 @@ class CreateIntegration(graphene.Mutation):
         workspace_id = IntID(required=True)
         label = graphene.String(required=True)
         integration_type_id = IntID(required=True)
+        config = graphene.JSONString(required=True)
 
     integration = graphene.Field(IntegrationType)
 
@@ -106,6 +107,7 @@ class UpdateIntegration(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
         label = graphene.String()
+        config = graphene.JSONString()
 
     integration = graphene.Field(IntegrationType)
 
@@ -209,6 +211,7 @@ class IntegrationTypeQuery(graphene.ObjectType):
 class CreateIntegrationType(graphene.Mutation):
     class Arguments:
         label = graphene.String(required=True)
+        config = graphene.JSONString(required=True)
 
     integration_type = graphene.Field(IntegrationTypeType)
 
@@ -238,6 +241,7 @@ class UpdateIntegrationType(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
         label = graphene.String()
+        config = graphene.JSONString()
 
     integration_type = graphene.Field(IntegrationTypeType)
 
@@ -290,8 +294,6 @@ class DeleteIntegrationType(graphene.Mutation):
             raise NotFoundException()
 
         integration_type.delete()
-
-        # TODO maybe delete orphans or something
 
         return DeleteIntegrationType(integration_type=integration_type)
 

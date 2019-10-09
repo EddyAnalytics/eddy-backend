@@ -5,6 +5,10 @@ from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+# examples: debezium, twitter, other data streams, external flink cluster, external hadoop cluster ...
+# an integration specifies the configuration of a certain integration
+# this integration can be external data or compute sources
+from django_mysql.models import JSONField
 
 
 class Integration(models.Model):
@@ -14,11 +18,13 @@ class Integration(models.Model):
     label = models.CharField(max_length=200)
     integration_type = models.ForeignKey('integrations.IntegrationType', related_name='integrations',
                                          on_delete=models.CASCADE)
+    config = JSONField()
 
 
 class IntegrationType(models.Model):
     id = models.AutoField(primary_key=True)
     label = models.CharField(max_length=200)
+    config = JSONField()
 
 
 class DebeziumConnector(models.Model):
