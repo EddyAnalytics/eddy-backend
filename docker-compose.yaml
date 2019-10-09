@@ -7,7 +7,6 @@ services:
       - 8881:8000
     links:
       - postgres:postgres
-      - mysql:mysql
     volumes:
       - ./:/usr/src/app/
     env_file: .env
