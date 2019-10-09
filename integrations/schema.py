@@ -182,7 +182,7 @@ class IntegrationTypeQuery(graphene.ObjectType):
     integration_type = graphene.Field(IntegrationTypeType, id=IntID(required=True))
 
     @classmethod
-    def resolve_block_type(cls, root, info, **kwargs):
+    def resolve_integration_type(cls, root, info, **kwargs):
         if not isinstance(info.context.user, User):
             # any user needs to be authenticated
             raise UnauthorizedException()
@@ -198,12 +198,12 @@ class IntegrationTypeQuery(graphene.ObjectType):
     all_integration_types = graphene.Field(graphene.List(IntegrationTypeType))
 
     @classmethod
-    def resolve_all_block_types(cls, root, info, **kwargs):
+    def resolve_all_integration_types(cls, root, info, **kwargs):
         if not isinstance(info.context.user, User):
             # any user needs to be authenticated
             raise UnauthorizedException()
 
-        all_integration_types = models.IntegrationType.objects.filter()
+        all_integration_types = models.IntegrationType.objects.all()
 
         return all_integration_types
 
@@ -260,7 +260,7 @@ class UpdateIntegrationType(graphene.Mutation):
         try:
             integration_type = models.IntegrationType.objects.get(pk=kwargs.get('id'))
         except models.IntegrationType.DoesNotExist:
-            # any superuser can only update block_types that exist
+            # any superuser can only update integration_types that exist
             raise NotFoundException()
 
         for key, value in update_kwargs.items():

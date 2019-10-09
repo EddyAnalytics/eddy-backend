@@ -10,12 +10,16 @@ if [ "$1" = 'eddy-backend' ]; then
     python3 manage.py makemigrations
     python3 manage.py migrate
     python3 manage.py createadminuser
+    python3 manage.py createdebeziumintegrationtype
+    python3 manage.py createdebeziumdataconnectortype
     exec uwsgi --ini uwsgi.ini
   else
     python3 manage.py collectstatic --no-input
     python3 manage.py makemigrations
     python3 manage.py migrate
     python3 manage.py createadminuser
+    python3 manage.py createdebeziumintegrationtype
+    python3 manage.py createdebeziumdataconnectortype
     exec uwsgi --ini uwsgi.ini
   fi
 fi
