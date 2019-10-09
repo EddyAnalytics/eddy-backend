@@ -7,6 +7,8 @@ services:
       - 8881:8000
     links:
       - mysql:mysql
+    volumes:
+      - ./:/usr/src/app/
     env_file: .env
 
   mysql:

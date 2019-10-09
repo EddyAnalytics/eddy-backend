@@ -1,5 +1,6 @@
 uwsgi
 Django
+django-mysql
 graphene-django
 django-filter
 django-graphql-jwt
