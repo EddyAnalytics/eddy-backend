@@ -203,9 +203,9 @@ class WidgetQuery(graphene.ObjectType):
 class CreateWidget(graphene.Mutation):
     class Arguments:
         dashboard_id = IntID(required=True)
-        label = graphene.String()
+        label = graphene.String(required=True)
         widget_type_id = IntID(required=True)
-        json_config = graphene.String()
+        config = graphene.JSONString(required=True)
 
     widget = graphene.Field(WidgetType)
 
@@ -252,7 +252,7 @@ class UpdateWidget(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
         label = graphene.String()
-        json_config = graphene.String()
+        config = graphene.JSONString()
 
     widget = graphene.Field(WidgetType)
 
@@ -364,7 +364,7 @@ class WidgetTypeQuery(graphene.ObjectType):
 class CreateWidgetType(graphene.Mutation):
     class Arguments:
         label = graphene.String(required=True)
-        json_config = graphene.String(required=True)
+        config = graphene.JSONString(required=True)
 
     widget_type = graphene.Field(WidgetTypeType)
 
@@ -393,6 +393,7 @@ class CreateWidgetType(graphene.Mutation):
 class UpdateWidgetType(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
+        config = graphene.JSONString()
 
     widget_type = graphene.Field(WidgetTypeType)
 

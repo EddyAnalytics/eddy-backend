@@ -15,7 +15,7 @@ class Block(models.Model):
     pipeline = models.ForeignKey('pipelines.Pipeline', related_name='blocks', on_delete=models.CASCADE)
     label = models.CharField(max_length=200)
     block_type = models.ForeignKey('pipelines.BlockType', related_name='blocks', on_delete=models.CASCADE)
-    config = models.CharField(max_length=200)
+    config = JSONField()
 
 
 class BlockType(models.Model):

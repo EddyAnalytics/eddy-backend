@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 
@@ -14,10 +15,10 @@ class Widget(models.Model):
     dashboard = models.ForeignKey('dashboards.Dashboard', related_name='widgets', on_delete=models.CASCADE)
     label = models.CharField(max_length=200)
     widget_type = models.ForeignKey('dashboards.WidgetType', related_name='widgets', on_delete=models.CASCADE)
-    config = models.CharField(max_length=200)
+    config = JSONField()
 
 
 class WidgetType(models.Model):
     id = models.AutoField(primary_key=True)
     label = models.CharField(max_length=200)
-    config = models.CharField(max_length=200)
+    config = JSONField()

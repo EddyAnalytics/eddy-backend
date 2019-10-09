@@ -206,7 +206,7 @@ class CreateBlock(graphene.Mutation):
         pipeline_id = IntID(required=True)
         label = graphene.String(required=True)
         block_type_id = IntID(required=True)
-        json_config = graphene.String(required=True)
+        config = graphene.JSONString(required=True)
 
     block = graphene.Field(BlockType)
 
@@ -254,7 +254,7 @@ class UpdateBlock(graphene.Mutation):
         id = IntID(required=True)
         label = graphene.String()
         # TODO maybe add block_type
-        json_config = graphene.String()
+        config = graphene.JSONString()
 
     block = graphene.Field(BlockType)
 
@@ -391,6 +391,7 @@ class UpdateBlockType(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
         label = graphene.String()
+        config = graphene.JSONString()
 
     block_type = graphene.Field(BlockTypeType)
 
