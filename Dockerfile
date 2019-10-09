@@ -6,7 +6,7 @@ RUN apk update
 
 RUN apk upgrade
 
-RUN apk add python3 python3-dev mysql mysql-client mysql-dev gcc g++ musl-dev  linux-headers tzdata
+RUN apk add python3 python3-dev postgresql postgresql-client postgresql-dev mysql mysql-client mysql-dev gcc g++ musl-dev  linux-headers tzdata
 
 COPY requirements.txt .
 

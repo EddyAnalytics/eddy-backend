@@ -6,21 +6,31 @@ services:
     ports:
       - 8881:8000
     links:
-      - mysql:mysql
+      - postgres:postgres
+#      - mysql:mysql
     volumes:
       - ./:/usr/src/app/
     env_file: .env
 
-  mysql:
-    image: mysql
-    command: --default-authentication-plugin=mysql_native_password
+  postgres:
+    image: postgres
     ports:
-      - 3306:3306
+      - 5432:5432
     environment:
-      MYSQL_ROOT_PASSWORD: mysqlrootpassword
-      MYSQL_DATABASE: db_eddy_backend
-      MYSQL_USER: eddy_backend
-      MYSQL_PASSWORD: mysqlpassword
+      POSTGRES_DB: db_eddy_backend
+      POSTGRES_USER: eddy_backend
+      POSTGRES_PASSWORD: postgrespassword
+
+#  mysql:
+#    image: mysql
+#    command: --default-authentication-plugin=mysql_native_password
+#    ports:
+#      - 3306:3306
+#    environment:
+#      MYSQL_ROOT_PASSWORD: mysqlrootpassword
+#      MYSQL_DATABASE: db_eddy_backend
+#      MYSQL_USER: eddy_backend
+#      MYSQL_PASSWORD: mysqlpassword
 
   debezium-zookeeper:
     image: debezium/zookeeper:0.10
