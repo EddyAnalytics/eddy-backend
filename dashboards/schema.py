@@ -7,10 +7,9 @@ from dashboards import models
 from dashboards.models import Dashboard, Widget
 from utils.exceptions import NotFoundException, UnauthorizedException, ForbiddenException
 from utils.utils import IntID
-# Dashboard
 from workspaces.models import Project
 
-
+# Dashboard
 class DashboardType(DjangoObjectType):
     class Meta:
         model = Dashboard
