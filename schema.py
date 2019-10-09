@@ -4,12 +4,13 @@ import graphql_jwt
 import authentication.schema
 import integrations.schema
 import pipelines.schema
+import projects.schema
 import workspaces.schema
 
 RootQuery = type(
     'RootQuery',
     tuple(
-        authentication.schema.query_list + integrations.schema.query_list + pipelines.schema.query_list + workspaces.schema.query_list
+        authentication.schema.query_list + integrations.schema.query_list + pipelines.schema.query_list + projects.schema.query_list + workspaces.schema.query_list
     ),
     {}
 )
@@ -17,7 +18,7 @@ RootQuery = type(
 RootMutation = type(
     'RootMutation',
     tuple(
-        authentication.schema.mutation_list + integrations.schema.mutation_list + pipelines.schema.mutation_list + workspaces.schema.mutation_list
+        authentication.schema.mutation_list + integrations.schema.mutation_list + pipelines.schema.mutation_list + projects.schema.mutation_list + workspaces.schema.mutation_list
     ),
     {}
 )
