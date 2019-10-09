@@ -6,3 +6,4 @@ venv
 db_eddy_backend
 .env
 static
+#**/migrations/

@@ -92,17 +92,6 @@ if os.environ.get('DB_TYPE', default='sqlite') == 'postgres':
             'PORT': os.environ.get('POSTGRES_PORT'),
         }
     }
-elif os.environ.get('DB_TYPE', default='sqlite') == 'mysql':
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('DB_NAME'),
-            'USER': os.environ.get('MYSQL_USER'),
-            'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
-            'HOST': os.environ.get('MYSQL_HOST'),
-            'PORT': os.environ.get('MYSQL_PORT'),
-        }
-    }
 else:
     DATABASES = {
         'default': {

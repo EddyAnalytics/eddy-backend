@@ -361,6 +361,7 @@ class BlockTypeQuery(graphene.ObjectType):
 class CreateBlockType(graphene.Mutation):
     class Arguments:
         label = graphene.String(required=True)
+        config = graphene.JSONString(required=True)
 
     block_type = graphene.Field(BlockTypeType)
 

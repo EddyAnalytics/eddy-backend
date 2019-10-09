@@ -6,7 +6,6 @@ django-filter
 django-graphql-jwt
 django-cors-headers
 psycopg2
-mysqlclient
 requests
 # TODO temporary celery testing code
 celery[redis]
