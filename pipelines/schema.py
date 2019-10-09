@@ -6,9 +6,9 @@ from authentication.models import User
 from authentication.schema import UserType
 from pipelines import models
 from pipelines.models import Pipeline, Block
+from projects.models import Project
 from utils.exceptions import UnauthorizedException, NotFoundException, ForbiddenException
 from utils.utils import IntID
-from workspaces.models import Project
 
 
 # Pipeline

@@ -5,7 +5,7 @@ from django_mysql.models import JSONField
 class Dashboard(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('authentication.User', related_name='dashboards', on_delete=models.CASCADE)
-    project = models.ForeignKey('workspaces.Project', related_name='dashboards', on_delete=models.CASCADE)
+    project = models.ForeignKey('projects.Project', related_name='dashboards', on_delete=models.CASCADE)
     label = models.CharField(max_length=200)
 
 

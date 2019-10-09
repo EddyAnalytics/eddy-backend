@@ -5,12 +5,12 @@ from authentication.models import User
 from authentication.schema import UserType
 from dashboards import models
 from dashboards.models import Dashboard, Widget
+from projects.models import Project
 from utils.exceptions import NotFoundException, UnauthorizedException, ForbiddenException
 from utils.utils import IntID
+
+
 # Dashboard
-from workspaces.models import Project
-
-
 class DashboardType(DjangoObjectType):
     class Meta:
         model = Dashboard
