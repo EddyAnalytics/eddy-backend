@@ -155,8 +155,8 @@ GRAPHQL_JWT = {
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
 }
 
-DEBEZIUM_HOST = os.environ.get('DEBEZIUM_HOST', default='localhost')
-DEBEZIUM_PORT = os.environ.get('DEBEZIUM_PORT', default='8083')
+KAFKA_HOST = os.environ.get('KAFKA_HOST', default='debezium-kafka')
+KAFKA_PORT = os.environ.get('KAFKA_PORT', default='9092')
 
 # TODO temporary redis testing code
 CELERY_BROKER_TRANSPORT = os.environ.get('CELERY_BROKER_TRANSPORT', default='redis')
