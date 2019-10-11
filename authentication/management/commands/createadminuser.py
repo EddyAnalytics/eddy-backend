@@ -12,7 +12,6 @@ class Command(BaseCommand):
             admin_user.username = 'admin'
             admin_user.set_password('admin')
             admin_user.is_superuser = True
-            admin_user.is_staff = True
             admin_user.save()
             self.stdout.write('Admin user created')
         else:
