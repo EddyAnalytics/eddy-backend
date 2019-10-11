@@ -16,47 +16,53 @@ class UserType(DjangoObjectType):
 
 
 class UserQuery(graphene.ObjectType):
+    """
+    A normal user can only query itself.
+    A super user can query any user.
+    """
     user = graphene.Field(UserType, id=IntID(required=True))
 
     @classmethod
     def resolve_user(cls, root, info, **kwargs):
         if not isinstance(info.context.user, User):
-            # any user needs to be authenticated
             raise UnauthorizedException()
 
         try:
             user = User.objects.get(pk=kwargs.get('id'))
         except User.DoesNotExist:
-            # any user can only request users that exist
             raise NotFoundException()
 
-        # any superuser can request any user
         if not info.context.user.is_superuser:
-            # any user can only request users associated to itself
             if user != info.context.user:
                 raise ForbiddenException()
 
         return user
 
+    """
+    A normal user can only query itself.
+    A super user can query any user.
+    """
     all_users = graphene.Field(graphene.List(UserType))
 
     @classmethod
     def resolve_all_users(cls, root, info, **kwargs):
         if not isinstance(info.context.user, User):
-            # any user needs to be authenticated
             raise UnauthorizedException()
 
         if not info.context.user.is_superuser:
-            # any user can only request connectors associated to itself
             all_users = User.objects.filter(pk=info.context.user.id)
         else:
-            # any superuser can request any user
             all_users = User.objects.all()
 
         return all_users
 
 
 class CreateUser(graphene.Mutation):
+    """
+    A normal user can not create users.
+    A super user can create users.
+    """
+
     class Arguments:
         username = graphene.String(required=True)
         password = graphene.String(required=True)
@@ -67,17 +73,16 @@ class CreateUser(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, **kwargs):
         if not isinstance(info.context.user, User):
-            # any user needs to be authenticated
             raise UnauthorizedException()
-
-        create_kwargs = dict(kwargs)
-
-        del create_kwargs['password']
 
         if not info.context.user.is_superuser:
             raise ForbiddenException()
 
         user = User()
+
+        create_kwargs = dict(kwargs)
+
+        del create_kwargs['password']
 
         for key, value in create_kwargs.items():
             setattr(user, key, value)
@@ -90,6 +95,13 @@ class CreateUser(graphene.Mutation):
 
 
 class UpdateUser(graphene.Mutation):
+    """
+    A normal user can only update itself.
+    A normal user can not update super user status.
+    A super user can update any users.
+    A super user can update super user status.
+    """
+
     class Arguments:
         id = IntID(required=True)
         username = graphene.String(required=True)
@@ -101,26 +113,23 @@ class UpdateUser(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, **kwargs):
         if not isinstance(info.context.user, User):
-            # any user needs to be authenticated
             raise UnauthorizedException()
-
-        update_kwargs = dict(kwargs)
-
-        del update_kwargs['password']
 
         try:
             user = User.objects.get(pk=kwargs.get('id'))
         except User.DoesNotExist:
-            # any superuser can only update users that exist
             raise NotFoundException()
 
-        # any superuser can update any user
         if not info.context.user.is_superuser:
-            # non superusers can update anything but the is_superuser state
-            del update_kwargs['is_superuser']
-            # any user can only update users associated to itself
             if user != info.context.user:
                 raise ForbiddenException()
+
+        update_kwargs = dict(kwargs)
+
+        if not info.context.user.is_superuser:
+            del update_kwargs['is_superuser']
+
+        del update_kwargs['password']
 
         for key, value in update_kwargs.items():
             setattr(user, key, value)
@@ -133,6 +142,11 @@ class UpdateUser(graphene.Mutation):
 
 
 class DeleteUser(graphene.Mutation):
+    """
+    A normal user can only delete itself.
+    A super user can delete any users.
+    """
+
     class Arguments:
         id = IntID(required=True)
 
@@ -141,7 +155,6 @@ class DeleteUser(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, **kwargs):
         if not isinstance(info.context.user, User):
-            # any user needs to be authenticated
             raise UnauthorizedException()
 
         try:
@@ -149,9 +162,7 @@ class DeleteUser(graphene.Mutation):
         except User.DoesNotExist:
             raise NotFoundException()
 
-        # any superuser can delete any user
         if not info.context.user.is_superuser:
-            # any user can only delete users associated to itself
             if user != info.context.user:
                 raise ForbiddenException()
 
