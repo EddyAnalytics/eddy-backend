@@ -7,5 +7,6 @@ django-graphql-jwt
 django-cors-headers
 mysqlclient
 requests
+jsonschema
 # TODO temporary celery testing code
 celery[redis]

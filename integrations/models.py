@@ -19,4 +19,4 @@ class Integration(models.Model):
 class IntegrationType(models.Model):
     id = models.AutoField(primary_key=True)
     label = models.CharField(max_length=200)
-    config = JSONField()
+    schema = JSONField()

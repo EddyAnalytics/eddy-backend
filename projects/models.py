@@ -91,6 +91,6 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
 class DataConnectorType(models.Model):
     id = models.AutoField(primary_key=True)
     label = models.CharField(max_length=200)
-    config = JSONField()
+    schema = JSONField()
 
 # TODO auto add debezium connector data connector type

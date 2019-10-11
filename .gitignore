@@ -6,5 +6,3 @@ venv
 db_eddy_backend
 .env
 static
-**/migrations/*
-!**/migrations/__init__.py

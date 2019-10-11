@@ -10,12 +10,15 @@ class Command(BaseCommand):
         if len(projects.models.DataConnectorType.objects.all()) == 0:
             debezium_data_connector_type = projects.models.DataConnectorType()
             debezium_data_connector_type.label = 'Debezium'
-            debezium_data_connector_type.config = {
-                'type': 'mysql',
-                'host': 'debezium-mysql',
-                'port': '3307',
-                'user': 'root',
-                'password': 'debezium'
+            debezium_data_connector_type.schema = {
+                'type': 'object',
+                'properties': {
+                    'type': {'type': 'string'},  # mysql
+                    'host': {'type': 'string'},  # debezium-mysql
+                    'port': {'type': 'string'},  # 3307
+                    'user': {'type': 'string'},  # root
+                    'password': {'type': 'string'}  # debezium
+                }
             }
             debezium_data_connector_type.save()
             self.stdout.write('Debezium data connector type created')
