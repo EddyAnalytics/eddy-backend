@@ -10,7 +10,7 @@ services:
     volumes:
       - ./:/usr/src/app/
     env_file: .env
-    command: makemigrations
+#    command: makemigrations
 
   mysql:
     image: mysql

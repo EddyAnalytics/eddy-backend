@@ -10,7 +10,9 @@ from utils.utils import IntID
 class UserType(DjangoObjectType):
     class Meta:
         model = User
-        exclude = ('id', 'password')
+        exclude = (
+        'password', 'last_login', 'first_name', 'last_name', 'email', 'is_staff', 'date_joined', 'id', 'groups',
+        'user_permisisons')
 
     id = IntID(required=True)
 
@@ -89,6 +91,8 @@ class CreateUser(graphene.Mutation):
 
         user.set_password(kwargs.get('password'))
 
+        user.is_staff = user.is_superuser
+
         user.save()
 
         return CreateUser(user=user)
@@ -135,6 +139,8 @@ class UpdateUser(graphene.Mutation):
             setattr(user, key, value)
 
         user.set_password(kwargs.get('password'))
+
+        user.is_staff = user.is_superuser
 
         user.save()
 
