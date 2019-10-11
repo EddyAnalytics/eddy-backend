@@ -16,7 +16,14 @@ class Integration(models.Model):
     config = JSONField()
 
 
+def default():
+    return {
+        'host': 'debezium-connect',
+        'port': '8083'
+    }
+
+
 class IntegrationType(models.Model):
     id = models.AutoField(primary_key=True)
-    label = models.CharField(max_length=200)
-    config = JSONField()
+    label = models.CharField(max_length=200, default='Debezium')
+    config = JSONField(default=default)

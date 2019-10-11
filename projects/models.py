@@ -88,9 +88,19 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
         logger.debug((str(response)))
 
 
+def default():
+    return {
+        'type': 'mysql',
+        'host': 'debezium-mysql',
+        'port': '3307',
+        'user': 'root',
+        'password': 'debezium'
+    }
+
+
 class DataConnectorType(models.Model):
     id = models.AutoField(primary_key=True)
-    label = models.CharField(max_length=200)
-    config = JSONField()
+    label = models.CharField(max_length=200, default='Debezium')
+    config = JSONField(default=default)
 
 # TODO auto add debezium connector data connector type
