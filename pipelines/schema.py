@@ -456,28 +456,34 @@ class BlockTypeMutation(object):
     delete_block_type = DeleteBlockType.Field()
 
 
-query_list = [PipelineQuery, BlockQuery, BlockTypeQuery]
-mutation_list = [PipelineMutation, BlockMutation, BlockTypeMutation]
+class CeleryTaskType(graphene.ObjectType):
+    type = graphene.String(required=True)
+    config = graphene.JSONString(required=True)
 
 
-# TODO temporary redis testing code
 class SendCeleryTask(graphene.Mutation):
     class Arguments:
-        input_topic = graphene.String(required=True)
-        sql_query = graphene.String(required=True)
-        output_topic = graphene.String(required=True)
-        in_schema = graphene.String(required=True)
-        out_schema = graphene.String(required=True)
+        type = graphene.String(required=True)
+        config = graphene.JSONString(required=True)
 
-    ok = graphene.Int()
+    celery_task = graphene.Field(CeleryTaskType)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
-        eddy_backend.celery.app.send_task('app.submit_flink_sql', (
-            kwargs.get('input_topic'), kwargs.get('output_topic'), kwargs.get('sql_query'), kwargs.get('in_schema'),
-            kwargs.get('out_schema')))
-        return SendCeleryTask(ok=0)
+        celery_task = CeleryTaskType()
+        celery_task.type = kwargs.get('type')
+        celery_task.config = kwargs.get('config')
+        if type == 'flink':
+            eddy_backend.celery.app.send_task('app.submit_flink_sql', (celery_task.config,))
+        elif type == 'beam':
+            pass
+
+        return SendCeleryTask(celery_task=celery_task)
 
 
 class SendCeleryTaskMutation(object):
     send_celery_task = SendCeleryTask.Field()
+
+
+query_list = [PipelineQuery, BlockQuery, BlockTypeQuery]
+mutation_list = [PipelineMutation, BlockMutation, BlockTypeMutation, SendCeleryTaskMutation]
