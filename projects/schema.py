@@ -410,7 +410,7 @@ class UpdateDataConnectorType(graphene.Mutation):
             raise ForbiddenException()
 
         try:
-            data_connector_type = models.BlockType.objects.get(pk=kwargs.get('id'))
+            data_connector_type = models.DataConnectorType.objects.get(pk=kwargs.get('id'))
         except models.DataConnectorType.DoesNotExist:
             # any superuser can only update data_connector_types that exist
             raise NotFoundException()
