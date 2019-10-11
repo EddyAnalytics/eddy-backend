@@ -12,6 +12,9 @@ class User(AbstractUser):
     # label is username
     workspace = models.OneToOneField('workspaces.Workspace', models.CASCADE, related_name='user')
 
+    def __str__(self):
+        return self.username
+
 
 @receiver(pre_save, sender=User)
 def pre_save_user(signal, sender, instance: User, using, **kwargs):

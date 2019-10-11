@@ -8,6 +8,9 @@ class Pipeline(models.Model):
     project = models.ForeignKey('projects.Project', related_name='pipelines', on_delete=models.CASCADE)
     label = models.CharField(max_length=200)
 
+    def __str__(self):
+        return self.label
+
 
 class Block(models.Model):
     id = models.AutoField(primary_key=True)
@@ -17,8 +20,14 @@ class Block(models.Model):
     block_type = models.ForeignKey('pipelines.BlockType', related_name='blocks', on_delete=models.CASCADE)
     config = JSONField()
 
+    def __str__(self):
+        return self.label
+
 
 class BlockType(models.Model):
     id = models.AutoField(primary_key=True)
     label = models.CharField(max_length=200)
     config = JSONField()
+
+    def __str__(self):
+        return self.label

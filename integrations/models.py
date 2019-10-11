@@ -15,6 +15,9 @@ class Integration(models.Model):
                                          on_delete=models.CASCADE)
     config = JSONField()
 
+    def __str__(self):
+        return self.label
+
 
 def default():
     return {
@@ -27,3 +30,6 @@ class IntegrationType(models.Model):
     id = models.AutoField(primary_key=True)
     label = models.CharField(max_length=200, default='Debezium')
     config = JSONField(default=default)
+
+    def __str__(self):
+        return self.label

@@ -19,6 +19,9 @@ class Project(models.Model):
     workspace = models.ForeignKey('workspaces.Workspace', related_name='projects', on_delete=models.CASCADE)
     label = models.CharField(max_length=200)
 
+    def __str__(self):
+        return self.label
+
 
 # examples: debezium, twitter, other data streams ...
 # a data connector ingests from the integrated data stream and publishes to a topic specific for this data connector
@@ -31,7 +34,11 @@ class DataConnector(models.Model):
     data_connector_type = models.ForeignKey('projects.DataConnectorType', models.CASCADE,
                                             related_name='data_connectors')
     config = JSONField()
+
     #  TODO topics field
+
+    def __str__(self):
+        return self.label
 
 
 @receiver(post_save, sender=DataConnector)
@@ -103,4 +110,5 @@ class DataConnectorType(models.Model):
     label = models.CharField(max_length=200, default='Debezium')
     config = JSONField(default=default)
 
-# TODO auto add debezium connector data connector type
+    def __str__(self):
+        return self.label
