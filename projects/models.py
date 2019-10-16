@@ -4,11 +4,9 @@ import logging
 import requests
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django_mysql.models import JSONField
-
-import integrations.models
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +21,16 @@ class Project(models.Model):
         return self.label
 
 
+def default():
+    return {
+        'type': 'mysql',
+        'host': 'debezium-mysql',
+        'port': '3307',
+        'user': 'root',
+        'password': 'debezium'
+    }
+
+
 # examples: debezium, twitter, other data streams ...
 # a data connector ingests from the integrated data stream and publishes to a topic specific for this data connector
 # a block in the pipeline can read from this topic
@@ -33,7 +41,7 @@ class DataConnector(models.Model):
     label = models.CharField(max_length=200)
     data_connector_type = models.ForeignKey('projects.DataConnectorType', models.CASCADE,
                                             related_name='data_connectors')
-    config = JSONField()
+    config = JSONField(default=default)
 
     #  TODO topics field
 
@@ -46,26 +54,14 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
     data_connector = instance
     data_connector_type = data_connector.data_connector_type
     if data_connector_type.label == 'Debezium':
-        # TODO might not be unique
-        integration_type = integrations.models.IntegrationType.objects.get(label='Debezium')
-
-        # TODO might not be unique
-        integration = data_connector.user.integrations.get(integration_type=integration_type)
-
-        url = 'http://' + integration.config['host'] + ':' + integration.config['port'] + '/connectors/'
+        integration = data_connector.data_connector_type.integration
 
         headers = dict()
         headers['Accept'] = 'application/json'
         headers['Content-Type'] = 'application/json'
 
-        unique_name = data_connector.user.username + str(data_connector.user.id) + data_connector.label + str(
-            data_connector.id)
+        unique_name = str(data_connector.user.id) + '-' + str(data_connector.id)
         unique_id = str(data_connector.id)
-
-        # https://debezium.io/documentation/reference/0.10/connectors/mysql.html#connector-properties
-
-        connector_dict = dict()
-        connector_dict['name'] = unique_name
 
         config_dict = dict()
         if data_connector.config['type'] == 'mysql':
@@ -77,37 +73,45 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
             config_dict['database.password'] = data_connector.config['password']
             config_dict['database.server.name'] = unique_name
             config_dict['database.server.id'] = unique_id
+            # TODO make tables selectable
             config_dict['database.whitelist'] = 'inventory'
+            # TODO wtf is this?
             config_dict['database.history.kafka.topic'] = 'schema-changes.inventory'
             config_dict['database.history.kafka.bootstrap.servers'] = settings.KAFKA_HOST + ':' + settings.KAFKA_PORT
-        # TODO other connectors postgresql mongodb
 
-        connector_dict['config'] = config_dict
+        url = 'http://' + integration.config['host'] + ':' + integration.config['port'] \
+              + '/connectors/' + unique_name + '/config/'
 
-        data = json.dumps(connector_dict)
+        data = json.dumps(config_dict)
 
-        logger.debug(str(url))
-        logger.debug(str(headers))
-        logger.debug(str(data))
-
-        # TODO maybe this becomes a put instead of a post
-        response = requests.post(url, headers=headers, data=data)
-        logger.debug((str(response)))
+        response = requests.put(url, headers=headers, data=data)
+        logger.debug(response)
 
 
-def default():
-    return {
-        'type': 'mysql',
-        'host': 'debezium-mysql',
-        'port': '3307',
-        'user': 'root',
-        'password': 'debezium'
-    }
+@receiver(post_delete, sender=DataConnector)
+def post_delete_data_connector(signal, sender, instance: DataConnector, using, **kwargs):
+    data_connector = instance
+    data_connector_type = data_connector.data_connector_type
+    if data_connector_type.label == 'Debezium':
+        integration = data_connector.data_connector_type.integration
+
+        headers = dict()
+        headers['Accept'] = 'application/json'
+        headers['Content-Type'] = 'application/json'
+
+        unique_name = str(data_connector.user.id) + '-' + str(data_connector.id)
+
+        url = 'http://' + integration.config['host'] + ':' + integration.config['port'] + '/connectors/' + unique_name
+
+        response = requests.delete(url, headers=headers)
+        logger.debug(response)
 
 
 class DataConnectorType(models.Model):
     id = models.AutoField(primary_key=True)
     label = models.CharField(max_length=200, default='Debezium')
+    integration = models.ForeignKey('integrations.Integration', models.CASCADE, related_name='data_connector_types',
+                                    null=True)
     config = JSONField(default=default)
 
     def __str__(self):

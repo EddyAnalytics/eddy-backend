@@ -1,6 +1,5 @@
 from django.contrib import admin
 
-from integrations.models import IntegrationType, Integration
+from integrations.models import Integration
 
-admin.site.register(IntegrationType)
 admin.site.register(Integration)
