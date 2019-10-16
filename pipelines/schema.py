@@ -462,16 +462,16 @@ class BlockTypeMutation(object):
 
 class SendCeleryTask(graphene.Mutation):
     class Arguments:
-        type = graphene.String(required=True)
+        task_type = graphene.String(required=True)
         config = graphene.JSONString(required=True)
 
     ok = graphene.Field(graphene.Boolean)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
-        if kwargs.get('type') == 'flink':
+        if kwargs.get('task_type') == 'flink':
             eddy_backend.celery.app.send_task('app.submit_flink_sql', (kwargs.get('config'),))
-        elif kwargs.get('type') == 'beam':
+        elif kwargs.get('task_type') == 'beam':
             eddy_backend.celery.app.send_task('app.submit_beam_sql', (kwargs.get('config'),))
 
         return SendCeleryTask(ok=True)
