@@ -98,6 +98,8 @@ class UpdatePipeline(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
         label = graphene.String()
+        config = graphene.JSONString()
+
 
     pipeline = graphene.Field(PipelineType)
 

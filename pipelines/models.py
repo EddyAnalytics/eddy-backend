@@ -7,6 +7,7 @@ class Pipeline(models.Model):
     user = models.ForeignKey('authentication.User', related_name='pipelines', on_delete=models.CASCADE)
     project = models.ForeignKey('projects.Project', related_name='pipelines', on_delete=models.CASCADE)
     label = models.CharField(max_length=200)
+    config = JSONField()
 
     def __str__(self):
         return self.label
