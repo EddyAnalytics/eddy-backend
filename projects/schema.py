@@ -3,9 +3,10 @@ from graphene_django import DjangoObjectType
 
 from authentication.models import User
 from authentication.schema import UserType
+from integrations.models import Integration
 from projects import models
 from projects.models import Project, DataConnector
-from utils.exceptions import ForbiddenException, NotFoundException, UnauthorizedException
+from utils.exceptions import ForbiddenException, NotFoundException, UnauthorizedException, ConflictException
 from utils.utils import IntID
 from workspaces.models import Workspace
 
@@ -258,7 +259,6 @@ class UpdateDataConnector(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
         label = graphene.String()
-        # TODO maybe add data_connector_type
         config = graphene.JSONString()
 
     data_connector = graphene.Field(DataConnectorType)
@@ -313,8 +313,6 @@ class DeleteDataConnector(graphene.Mutation):
 
         data_connector.delete()
 
-        # TODO maybe add some hooks to delete other blocks and stuff
-
         return DeleteDataConnector(id=kwargs.get('id'))
 
 
@@ -366,6 +364,7 @@ class DataConnectorTypeQuery(graphene.ObjectType):
 class CreateDataConnectorType(graphene.Mutation):
     class Arguments:
         label = graphene.String(required=True)
+        integration_id = IntID()
         config = graphene.JSONString(required=True)
 
     data_connector_type = graphene.Field(DataConnectorTypeType)
@@ -381,6 +380,21 @@ class CreateDataConnectorType(graphene.Mutation):
         if not info.context.user.is_superuser:
             # only superusers can create data_connector_types
             raise ForbiddenException()
+
+        try:
+            integration = Integration.objects.get(pk=kwargs.get('integration_id'))
+        except Integration.DoesNotExist:
+            # any user can only create a data_connector if it associates it to a integration
+            raise NotFoundException()
+
+        if integration.user != info.context.user:
+            raise ForbiddenException()
+
+        if not integration.supports_data_connectors:
+            raise ConflictException()
+
+        del create_kwargs['integration_id']
+        create_kwargs['integration'] = integration
 
         data_connector_type = models.DataConnectorType()
 
