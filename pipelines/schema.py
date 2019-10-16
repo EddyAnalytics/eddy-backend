@@ -100,7 +100,6 @@ class UpdatePipeline(graphene.Mutation):
         label = graphene.String()
         config = graphene.JSONString()
 
-
     pipeline = graphene.Field(PipelineType)
 
     @classmethod
@@ -478,7 +477,7 @@ class SendCeleryTask(graphene.Mutation):
         if type == 'flink':
             eddy_backend.celery.app.send_task('app.submit_flink_sql', (celery_task.config,))
         elif type == 'beam':
-            pass
+            eddy_backend.celery.app.send_task('app.submit_beam_sql', (celery_task.config,))
 
         return SendCeleryTask(celery_task=celery_task)
 
