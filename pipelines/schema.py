@@ -1,5 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
+import json
 
 import eddy_backend.celery
 from authentication.models import User
@@ -470,9 +471,9 @@ class SendCeleryTask(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, **kwargs):
         if kwargs.get('task_type') == 'flink':
-            eddy_backend.celery.app.send_task('app.submit_flink_sql', (kwargs.get('config'),))
+            eddy_backend.celery.app.send_task('app.submit_flink_sql', (json.dumps(kwargs.get('config')),))
         elif kwargs.get('task_type') == 'beam':
-            eddy_backend.celery.app.send_task('app.submit_beam_sql', (kwargs.get('config'),))
+            eddy_backend.celery.app.send_task('app.submit_beam_sql', (json.dumps(kwargs.get('config')),))
         else:
             raise NotFoundException()
 
