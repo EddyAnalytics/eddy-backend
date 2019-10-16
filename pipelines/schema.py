@@ -460,11 +460,6 @@ class BlockTypeMutation(object):
     delete_block_type = DeleteBlockType.Field()
 
 
-class CeleryTaskType(graphene.ObjectType):
-    type = graphene.String(required=True)
-    config = graphene.JSONString(required=True)
-
-
 class SendCeleryTask(graphene.Mutation):
     class Arguments:
         type = graphene.String(required=True)
@@ -474,13 +469,10 @@ class SendCeleryTask(graphene.Mutation):
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
-        celery_task = CeleryTaskType()
-        celery_task.type = kwargs.get('type')
-        celery_task.config = kwargs.get('config')
-        if type == 'flink':
-            eddy_backend.celery.app.send_task('app.submit_flink_sql', (celery_task.config,))
-        elif type == 'beam':
-            eddy_backend.celery.app.send_task('app.submit_beam_sql', (celery_task.config,))
+        if kwargs.get('type') == 'flink':
+            eddy_backend.celery.app.send_task('app.submit_flink_sql', (kwargs.get('config'),))
+        elif kwargs.get('type') == 'beam':
+            eddy_backend.celery.app.send_task('app.submit_beam_sql', (kwargs.get('config'),))
 
         return SendCeleryTask(ok=True)
 
