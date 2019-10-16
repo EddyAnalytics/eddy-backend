@@ -70,7 +70,7 @@ class CreateDashboard(graphene.Mutation):
 
         create_kwargs = dict(kwargs)
 
-        create_kwargs['user_id'] = info.context.user.id
+        create_kwargs['user'] = info.context.user
 
         try:
             project = Project.objects.get(pk=kwargs.get('project_id'))
@@ -81,7 +81,8 @@ class CreateDashboard(graphene.Mutation):
         if project.user != info.context.user:
             raise ForbiddenException()
 
-        create_kwargs['project_id'] = project.id
+        del create_kwargs['project_id']
+        create_kwargs['project'] = project
 
         dashboard = Dashboard()
 
@@ -126,7 +127,7 @@ class DeleteDashboard(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
 
-    dashboard = graphene.Field(DashboardType)
+    id = graphene.Field(IntID)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -146,7 +147,7 @@ class DeleteDashboard(graphene.Mutation):
 
         dashboard.delete()
 
-        return DeleteDashboard(dashboard=None)
+        return DeleteDashboard(id=kwargs.get('id'))
 
 
 class DashboardMutation(object):
@@ -217,7 +218,7 @@ class CreateWidget(graphene.Mutation):
 
         create_kwargs = dict(kwargs)
 
-        create_kwargs['user_id'] = info.context.user.id
+        create_kwargs['user'] = info.context.user
 
         try:
             dashboard = Dashboard.objects.get(pk=kwargs.get('dashboard_id'))
@@ -228,7 +229,8 @@ class CreateWidget(graphene.Mutation):
         if dashboard.user != info.context.user:
             raise ForbiddenException()
 
-        create_kwargs['dashboard_id'] = dashboard.id
+        del create_kwargs['dashboard_id']
+        create_kwargs['dashboard'] = dashboard
 
         try:
             widget_type = models.WidgetType.objects.get(pk=kwargs.get('widget_type_id'))
@@ -236,7 +238,8 @@ class CreateWidget(graphene.Mutation):
             # any user can only create a widget if it associates it to a widget_type
             raise NotFoundException()
 
-        create_kwargs['widget_type_id'] = widget_type.id
+        del create_kwargs['widget_type_id']
+        create_kwargs['widget_type'] = widget_type
 
         widget = Widget()
 
@@ -291,7 +294,7 @@ class DeleteWidget(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
 
-    widget = graphene.Field(WidgetType)
+    id = graphene.Field(IntID)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -313,7 +316,7 @@ class DeleteWidget(graphene.Mutation):
 
         # TODO maybe add some hooks to delete other blocks and stuff
 
-        return DeleteWidget(widget=widget)
+        return DeleteWidget(id=kwargs.get('id'))
 
 
 class WidgetMutation(object):
@@ -427,7 +430,7 @@ class DeleteWidgetType(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
 
-    widget_type = graphene.Field(WidgetTypeType)
+    id = graphene.Field(IntID)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -449,7 +452,7 @@ class DeleteWidgetType(graphene.Mutation):
 
         # TODO maybe delete orphans or something
 
-        return DeleteWidgetType(widget_type=widget_type)
+        return DeleteWidgetType(id=kwargs.get('id'))
 
 
 class WidgetTypeMutation(object):

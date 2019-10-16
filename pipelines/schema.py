@@ -71,7 +71,7 @@ class CreatePipeline(graphene.Mutation):
 
         create_kwargs = dict(kwargs)
 
-        create_kwargs['user_id'] = info.context.user.id
+        create_kwargs['user'] = info.context.user
 
         try:
             project = Project.objects.get(pk=kwargs.get('project_id'))
@@ -82,7 +82,8 @@ class CreatePipeline(graphene.Mutation):
         if project.user != info.context.user:
             raise ForbiddenException()
 
-        create_kwargs['project_id'] = project.id
+        del create_kwargs['project_id']
+        create_kwargs['project'] = project
 
         pipeline = Pipeline()
 
@@ -128,7 +129,7 @@ class DeletePipeline(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
 
-    pipeline = graphene.Field(PipelineType)
+    id = graphene.Field(IntID)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -148,7 +149,7 @@ class DeletePipeline(graphene.Mutation):
 
         pipeline.delete()
 
-        return DeletePipeline(pipeline=None)
+        return DeletePipeline(id=kwargs.get('id'))
 
 
 class PipelineMutation(object):
@@ -219,7 +220,7 @@ class CreateBlock(graphene.Mutation):
 
         create_kwargs = dict(kwargs)
 
-        create_kwargs['user_id'] = info.context.user.id
+        create_kwargs['user'] = info.context.user
 
         try:
             pipeline = Pipeline.objects.get(pk=kwargs.get('pipeline_id'))
@@ -230,7 +231,8 @@ class CreateBlock(graphene.Mutation):
         if pipeline.user != info.context.user:
             raise ForbiddenException()
 
-        create_kwargs['pipeline_id'] = pipeline.id
+        del create_kwargs['pipeline_id']
+        create_kwargs['pipeline'] = pipeline
 
         try:
             block_type = models.BlockType.objects.get(pk=kwargs.get('block_type_id'))
@@ -238,7 +240,8 @@ class CreateBlock(graphene.Mutation):
             # any user can only create a block if it associates it to a block_type
             raise NotFoundException()
 
-        create_kwargs['block_type_id'] = block_type.id
+        del create_kwargs['block_type_id']
+        create_kwargs['block_type'] = block_type
 
         block = Block()
 
@@ -289,7 +292,7 @@ class DeleteBlock(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
 
-    block = graphene.Field(BlockType)
+    id = graphene.Field(IntID)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -311,7 +314,7 @@ class DeleteBlock(graphene.Mutation):
 
         # TODO maybe add some hooks to delete other blocks and stuff
 
-        return DeleteBlock(block=block)
+        return DeleteBlock(id=kwargs.get('id'))
 
 
 class BlockMutation(object):
@@ -426,7 +429,7 @@ class DeleteBlockType(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
 
-    block_type = graphene.Field(BlockTypeType)
+    id = graphene.Field(IntID)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -448,7 +451,7 @@ class DeleteBlockType(graphene.Mutation):
 
         # TODO maybe delete orphans or something
 
-        return DeleteBlockType(block_type=block_type)
+        return DeleteBlockType(id=kwargs.get('id'))
 
 
 class BlockTypeMutation(object):
@@ -467,7 +470,7 @@ class SendCeleryTask(graphene.Mutation):
         type = graphene.String(required=True)
         config = graphene.JSONString(required=True)
 
-    celery_task = graphene.Field(CeleryTaskType)
+    ok = graphene.Field(graphene.Boolean)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -479,7 +482,7 @@ class SendCeleryTask(graphene.Mutation):
         elif type == 'beam':
             eddy_backend.celery.app.send_task('app.submit_beam_sql', (celery_task.config,))
 
-        return SendCeleryTask(celery_task=celery_task)
+        return SendCeleryTask(ok=True)
 
 
 class SendCeleryTaskMutation(object):

@@ -72,7 +72,7 @@ class CreateIntegration(graphene.Mutation):
 
         create_kwargs = dict(kwargs)
 
-        create_kwargs['user_id'] = info.context.user.id
+        create_kwargs['user'] = info.context.user
 
         try:
             workspace = Workspace.objects.get(pk=kwargs.get('workspace_id'))
@@ -83,7 +83,8 @@ class CreateIntegration(graphene.Mutation):
         if workspace.user != info.context.user:
             raise ForbiddenException()
 
-        create_kwargs['workspace_id'] = workspace.id
+        del create_kwargs['workspace_id']
+        create_kwargs['workspace'] = workspace
 
         try:
             integration_type = models.IntegrationType.objects.get(pk=kwargs.get('integration_type_id'))
@@ -91,7 +92,8 @@ class CreateIntegration(graphene.Mutation):
             # any user can only create a integration if it associates it to a integration_type
             raise NotFoundException()
 
-        create_kwargs['integration_type_id'] = integration_type.id
+        del create_kwargs['integration_type_id']
+        create_kwargs['integration_type'] = integration_type
 
         integration = Integration()
 
@@ -141,7 +143,7 @@ class DeleteIntegration(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
 
-    integration = graphene.Field(IntegrationType)
+    id = graphene.Field(IntID)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -161,7 +163,7 @@ class DeleteIntegration(graphene.Mutation):
 
         integration.delete()
 
-        return DeleteIntegration(integration=None)
+        return DeleteIntegration(id=kwargs.get('id'))
 
 
 class IntegrationMutation(object):
@@ -275,7 +277,7 @@ class DeleteIntegrationType(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
 
-    integration_type = graphene.Field(IntegrationTypeType)
+    id = graphene.Field(IntID)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -295,7 +297,7 @@ class DeleteIntegrationType(graphene.Mutation):
 
         integration_type.delete()
 
-        return DeleteIntegrationType(integration_type=integration_type)
+        return DeleteIntegrationType(id=kwargs.get('id'))
 
 
 class IntegrationtypeMutation(object):

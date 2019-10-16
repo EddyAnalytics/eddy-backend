@@ -22,7 +22,7 @@ def pre_save_user(signal, sender, instance: User, using, **kwargs):
     if not hasattr(user, 'workspace'):
         workspace = Workspace()
         workspace.save()
-        user.workspace_id = workspace.id
+        user.workspace = workspace
 
 
 @receiver(post_delete, sender=User)

@@ -69,7 +69,7 @@ class CreateProject(graphene.Mutation):
             raise UnauthorizedException()
 
         create_kwargs = dict(kwargs)
-        create_kwargs['user_id'] = info.context.user.id
+        create_kwargs['user'] = info.context.user
 
         try:
             workspace = Workspace.objects.get(pk=kwargs.get('workspace_id'))
@@ -80,7 +80,8 @@ class CreateProject(graphene.Mutation):
         if workspace.user != info.context.user:
             raise ForbiddenException()
 
-        create_kwargs['workspace_id'] = workspace.id
+        del create_kwargs['workspace_id']
+        create_kwargs['workspace'] = workspace
 
         project = Project()
 
@@ -129,7 +130,7 @@ class DeleteProject(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
 
-    project = graphene.Field(ProjectType)
+    id = graphene.Field(IntID)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -149,7 +150,7 @@ class DeleteProject(graphene.Mutation):
 
         project.delete()
 
-        return DeleteProject(project=None)
+        return DeleteProject(id=kwargs.get('id'))
 
 
 class ProjectMutation(object):
@@ -220,7 +221,7 @@ class CreateDataConnector(graphene.Mutation):
 
         create_kwargs = dict(kwargs)
 
-        create_kwargs['user_id'] = info.context.user.id
+        create_kwargs['user'] = info.context.user
 
         try:
             project = Project.objects.get(pk=kwargs.get('project_id'))
@@ -231,7 +232,8 @@ class CreateDataConnector(graphene.Mutation):
         if project.user != info.context.user:
             raise ForbiddenException()
 
-        create_kwargs['project_id'] = project.id
+        del create_kwargs['project_id']
+        create_kwargs['project'] = project
 
         try:
             data_connector_type = models.DataConnectorType.objects.get(pk=kwargs.get('data_connector_type_id'))
@@ -239,7 +241,8 @@ class CreateDataConnector(graphene.Mutation):
             # any user can only create a data_connector if it associates it to a data_connector_type
             raise NotFoundException()
 
-        create_kwargs['data_connector_type_id'] = data_connector_type.id
+        del create_kwargs['data_connector_type_id']
+        create_kwargs['data_connector_type'] = data_connector_type
 
         data_connector = DataConnector()
 
@@ -290,7 +293,7 @@ class DeleteDataConnector(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
 
-    data_connector = graphene.Field(DataConnectorType)
+    id = graphene.Field(IntID)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -312,7 +315,7 @@ class DeleteDataConnector(graphene.Mutation):
 
         # TODO maybe add some hooks to delete other blocks and stuff
 
-        return DeleteDataConnector(data_connector=data_connector)
+        return DeleteDataConnector(id=kwargs.get('id'))
 
 
 class DataConnectorMutation(object):
@@ -427,7 +430,7 @@ class DeleteDataConnectorType(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
 
-    data_connector_type = graphene.Field(DataConnectorTypeType)
+    id = graphene.Field(IntID)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -447,7 +450,7 @@ class DeleteDataConnectorType(graphene.Mutation):
 
         data_connector_type.delete()
 
-        return DeleteDataConnectorType(data_connector_type=data_connector_type)
+        return DeleteDataConnectorType(id=kwargs.get('id'))
 
 
 class DataConnectorTypeMutation(object):

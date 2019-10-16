@@ -10,9 +10,8 @@ from utils.utils import IntID
 class UserType(DjangoObjectType):
     class Meta:
         model = User
-        exclude = (
-        'password', 'last_login', 'first_name', 'last_name', 'email', 'is_staff', 'date_joined', 'id', 'groups',
-        'user_permisisons')
+        exclude = ('password', 'last_login', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined',
+                   'id', 'groups', 'user_permisisons')
 
     id = IntID(required=True)
 
@@ -156,7 +155,7 @@ class DeleteUser(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
 
-    user = graphene.Field(UserType)
+    id = graphene.Field(IntID)
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
@@ -174,7 +173,7 @@ class DeleteUser(graphene.Mutation):
 
         user.delete()
 
-        return DeleteUser(user=user)
+        return DeleteUser(id=kwargs.get('id'))
 
 
 class UserMutation(object):
