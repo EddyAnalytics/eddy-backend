@@ -54,7 +54,8 @@ class DataConnector(models.Model):
 def post_save_data_connector(signal, sender, instance: DataConnector, using, **kwargs):
     data_connector = instance
     data_connector_type = data_connector.data_connector_type
-    if hasattr(data_connector_type, 'integration') and data_connector_type.integration.integration_type == 'debezium':
+    if hasattr(data_connector_type,
+               'integration') and data_connector_type.integration is not None and data_connector_type.integration.integration_type == 'debezium':
         integration = data_connector.data_connector_type.integration
 
         headers = dict()
@@ -91,7 +92,8 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
 def pre_delete_data_connector(signal, sender, instance: DataConnector, using, **kwargs):
     data_connector = instance
     data_connector_type = data_connector.data_connector_type
-    if hasattr(data_connector_type, 'integration') and data_connector_type.integration.integration_type == 'debezium':
+    if hasattr(data_connector_type,
+               'integration') and data_connector_type.integration is not None and data_connector_type.integration.integration_type == 'debezium':
         integration = data_connector.data_connector_type.integration
 
         headers = dict()
