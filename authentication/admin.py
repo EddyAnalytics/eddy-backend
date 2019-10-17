@@ -1,6 +1,6 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 
 from authentication.models import User
+from utils.utils import ReadOnlyIdAdmin
 
-admin.site.register(User)
+admin.site.register(User, ReadOnlyIdAdmin)

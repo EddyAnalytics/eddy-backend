@@ -1,7 +1,8 @@
 from django.contrib import admin
 
 from projects.models import DataConnectorType, DataConnector, Project
+from utils.utils import ReadOnlyIdAdmin
 
-admin.site.register(Project)
-admin.site.register(DataConnector)
-admin.site.register(DataConnectorType)
+admin.site.register(Project, ReadOnlyIdAdmin)
+admin.site.register(DataConnector, ReadOnlyIdAdmin)
+admin.site.register(DataConnectorType, ReadOnlyIdAdmin)
