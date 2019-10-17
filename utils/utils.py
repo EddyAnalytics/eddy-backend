@@ -26,4 +26,4 @@ def convert_mysql_json_field_to_graphene_json_string(field, registry=None):
 
 
 class ReadOnlyIdAdmin(admin.ModelAdmin):
-    readonly_fields = ('id,')
+    readonly_fields = ('id',)
