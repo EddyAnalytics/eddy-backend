@@ -4,7 +4,7 @@ import logging
 import requests
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django_mysql.models import JSONField
 
@@ -27,7 +27,8 @@ def default():
         'host': 'debezium-mysql',
         'port': '3307',
         'user': 'root',
-        'password': 'debezium'
+        'password': 'debezium',
+        'databases': ['inventory']
     }
 
 
@@ -53,7 +54,7 @@ class DataConnector(models.Model):
 def post_save_data_connector(signal, sender, instance: DataConnector, using, **kwargs):
     data_connector = instance
     data_connector_type = data_connector.data_connector_type
-    if data_connector_type.label == 'Debezium':
+    if hasattr(data_connector_type, 'integration') and data_connector_type.integration.integration_type == 'debezium':
         integration = data_connector.data_connector_type.integration
 
         headers = dict()
@@ -73,10 +74,8 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
             config_dict['database.password'] = data_connector.config['password']
             config_dict['database.server.name'] = unique_name
             config_dict['database.server.id'] = unique_id
-            # TODO make tables selectable
-            config_dict['database.whitelist'] = 'inventory'
-            # TODO wtf is this?
-            config_dict['database.history.kafka.topic'] = 'schema-changes.inventory'
+            config_dict['database.whitelist'] = data_connector.config['databases']
+            config_dict['database.history.kafka.topic'] = 'schema-changes' + '.' + unique_name
             config_dict['database.history.kafka.bootstrap.servers'] = settings.KAFKA_HOST + ':' + settings.KAFKA_PORT
 
         url = 'http://' + integration.config['host'] + ':' + integration.config['port'] \
@@ -88,11 +87,11 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
         logger.debug(response)
 
 
-@receiver(post_delete, sender=DataConnector)
-def post_delete_data_connector(signal, sender, instance: DataConnector, using, **kwargs):
+@receiver(pre_delete, sender=DataConnector)
+def pre_delete_data_connector(signal, sender, instance: DataConnector, using, **kwargs):
     data_connector = instance
     data_connector_type = data_connector.data_connector_type
-    if data_connector_type.label == 'Debezium':
+    if hasattr(data_connector_type, 'integration') and data_connector_type.integration.integration_type == 'debezium':
         integration = data_connector.data_connector_type.integration
 
         headers = dict()
