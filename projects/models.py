@@ -62,7 +62,7 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
         headers['Accept'] = 'application/json'
         headers['Content-Type'] = 'application/json'
 
-        unique_name = str(data_connector.user.id) + '-' + str(data_connector.id)
+        unique_name = str(data_connector.project.id) + '_' + str(data_connector.id)
         unique_id = str(data_connector.id)
 
         config_dict = dict()
@@ -100,7 +100,7 @@ def pre_delete_data_connector(signal, sender, instance: DataConnector, using, **
         headers['Accept'] = 'application/json'
         headers['Content-Type'] = 'application/json'
 
-        unique_name = str(data_connector.user.id) + '-' + str(data_connector.id)
+        unique_name = str(data_connector.project.id) + '_' + str(data_connector.id)
 
         url = 'http://' + integration.config['host'] + ':' + integration.config['port'] + '/connectors/' + unique_name
 
