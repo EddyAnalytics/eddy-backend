@@ -212,7 +212,7 @@ class CreateDataConnector(graphene.Mutation):
         data_connector_type_id = IntID(required=True)
         config = graphene.JSONString(required=True)
 
-    data_connector = graphene.Field(DataConnectorType)
+    data_connector = graphene.Field(DataConnectorType, id=IntID(required=True))
 
     @classmethod
     def mutate(cls, root, info, **kwargs):
