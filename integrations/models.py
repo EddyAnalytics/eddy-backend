@@ -11,7 +11,7 @@ integration_types = ['debezium']
 
 def default():
     return {
-        'host': 'debezium-connect',
+        'host': 'my-connect-cluster-connect-api.strimzi-kafka-operator.svc.cluster.local',
         'port': '8083'
     }
 
