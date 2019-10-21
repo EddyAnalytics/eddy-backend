@@ -65,6 +65,9 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
         unique_name = str(data_connector.project.id) + '.' + str(data_connector.id)
         unique_id = str(data_connector.id)
 
+        connector_dict = dict()
+        connector_dict['name'] = unique_name
+
         config_dict = dict()
         if data_connector.config['type'] == 'mysql':
             config_dict['connector.class'] = 'io.debezium.connector.mysql.MySqlConnector'
@@ -79,14 +82,17 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
             config_dict['database.history.kafka.topic'] = 'schema-changes' + '.' + unique_name
             config_dict['database.history.kafka.bootstrap.servers'] = settings.KAFKA_HOST + ':' + settings.KAFKA_PORT
 
-        url = 'http://' + integration.config['host'] + ':' + integration.config['port'] \
-              + '/connectors/' + unique_name + '/config/'
+        connector_dict['config'] = config_dict
 
-        data = json.dumps(config_dict)
+        url = 'http://' + integration.config['host'] + ':' + integration.config['port'] \
+              + '/connectors/'
+
+        data = json.dumps(connector_dict)
         logger.debug(data)
 
-        response = requests.put(url, headers=headers, data=data)
+        response = requests.post(url, headers=headers, data=data)
         logger.debug(response)
+        logger.debug(response.content)
 
 
 @receiver(pre_delete, sender=DataConnector)
