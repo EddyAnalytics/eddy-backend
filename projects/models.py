@@ -28,7 +28,7 @@ def default():
         'port': '3307',
         'user': 'root',
         'password': 'debezium',
-        'databases': ['inventory']
+        'databases': 'inventory'
     }
 
 

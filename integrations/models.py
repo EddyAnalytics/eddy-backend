@@ -1,6 +1,10 @@
+import requests
 from django.db import models
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django_mysql.models import JSONField
+
+from utils.exceptions import ConflictException
 
 integration_types = ['debezium']
 
@@ -25,3 +29,19 @@ class Integration(models.Model):
 
     def __str__(self):
         return self.label
+
+
+@receiver(post_save, sender=Integration)
+def post_save_integration(signal, sender, instance: Integration, using, **kwargs):
+    integration = instance
+    if integration.integration_type == 'debezium':
+        headers = dict()
+        headers['Accept'] = 'application/json'
+        headers['Content-Type'] = 'application/json'
+        url = 'http://' + integration.config['host'] + ':' + integration.config['port'] + '/connectors/'
+        try:
+            response = requests.get(url, headers=headers)
+        except requests.exceptions.ConnectionError:
+            raise ConflictException()
+        if response.status_code != 200:
+            raise ConflictException()
