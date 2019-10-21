@@ -24,8 +24,8 @@ class Project(models.Model):
 def default():
     return {
         'type': 'mysql',
-        'host': 'debezium-mysql',
-        'port': '3307',
+        'host': 'mysql.strimzi-kafka-operator.svc.cluster.local',
+        'port': '3306',
         'user': 'root',
         'password': 'debezium',
         'databases': 'inventory'
