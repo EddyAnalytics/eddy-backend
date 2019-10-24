@@ -1,0 +1,377 @@
+# This file was generated based on "schema.json". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type BlockType {
+    blockType: BlockTypeType!
+    config: JSONString!
+    id: IntID!
+    label: String!
+    pipeline: PipelineType!
+    user: UserType!
+}
+
+type BlockTypeType {
+    config: JSONString!
+    id: IntID!
+    label: String!
+}
+
+type CreateBlock {
+    block: BlockType
+}
+
+type CreateBlockType {
+    blockType: BlockTypeType
+}
+
+type CreateDashboard {
+    dashboard: DashboardType
+}
+
+type CreateDataConnector {
+    dataConnector: DataConnectorType
+}
+
+type CreateDataConnectorType {
+    dataConnectorType: DataConnectorTypeType
+}
+
+type CreateIntegration {
+    integration: IntegrationType
+}
+
+type CreatePipeline {
+    pipeline: PipelineType
+}
+
+type CreateProject {
+    project: ProjectType
+}
+
+"""
+A normal user can not create users.
+A super user can create users.
+"""
+type CreateUser {
+    user: UserType
+}
+
+type CreateWidget {
+    widget: WidgetType
+}
+
+type CreateWidgetType {
+    widgetType: WidgetTypeType
+}
+
+type DashboardType {
+    id: IntID!
+    label: String!
+    project: ProjectType!
+    user: UserType!
+    widgets: [WidgetType!]!
+}
+
+type DataConnectorType {
+    config: JSONString!
+    dataConnectorType: DataConnectorTypeType!
+    id: IntID!
+    label: String!
+    project: ProjectType!
+    user: UserType!
+}
+
+type DataConnectorTypeType {
+    config: JSONString!
+    id: IntID!
+    integration: IntegrationType
+    label: String!
+}
+
+type DeleteBlock {
+    id: IntID
+}
+
+type DeleteBlockType {
+    id: IntID
+}
+
+type DeleteDashboard {
+    id: IntID
+}
+
+type DeleteDataConnector {
+    id: IntID
+}
+
+type DeleteDataConnectorType {
+    id: IntID
+}
+
+type DeleteIntegration {
+    id: IntID
+}
+
+type DeletePipeline {
+    id: IntID
+}
+
+type DeleteProject {
+    id: IntID
+}
+
+"""
+A normal user can only delete itself.
+A super user can delete any users.
+"""
+type DeleteUser {
+    id: IntID
+}
+
+type DeleteWidget {
+    id: IntID
+}
+
+type DeleteWidgetType {
+    id: IntID
+}
+
+type IntegrationType {
+    config: JSONString!
+    dataConnectorTypes: [DataConnectorTypeType!]!
+    id: IntID!
+    integrationType: String!
+    label: String!
+    supportsDataConnectors: Boolean!
+    user: UserType!
+    workspace: WorkspaceType!
+}
+
+type Mutation {
+    createBlock(blockTypeId: IntID!, config: JSONString!, label: String!, pipelineId: IntID!): CreateBlock
+    createBlockType(config: JSONString!, label: String!): CreateBlockType
+    createDashboard(label: String!, projectId: IntID!): CreateDashboard
+    createDataConnector(config: JSONString!, dataConnectorTypeId: IntID!, label: String!, projectId: IntID!): CreateDataConnector
+    createDataConnectorType(config: JSONString!, integrationId: IntID, label: String!): CreateDataConnectorType
+    createIntegration(config: JSONString!, integrationType: String!, label: String!, supportsDataConnectors: Boolean!, workspaceId: IntID!): CreateIntegration
+    createPipeline(label: String!, projectId: IntID!): CreatePipeline
+    createProject(label: String, workspaceId: IntID!): CreateProject
+    """
+    A normal user can not create users.
+    A super user can create users.
+    """
+    createUser(isSuperuser: Boolean!, password: String!, username: String!): CreateUser
+    createWidget(config: JSONString!, dashboardId: IntID!, label: String!, widgetTypeId: IntID!): CreateWidget
+    createWidgetType(config: JSONString!, label: String!): CreateWidgetType
+    deleteBlock(id: IntID!): DeleteBlock
+    deleteBlockType(id: IntID!): DeleteBlockType
+    deleteDashboard(id: IntID!): DeleteDashboard
+    deleteDataConnector(id: IntID!): DeleteDataConnector
+    deleteDataConnectorType(id: IntID!): DeleteDataConnectorType
+    deleteIntegration(id: IntID!): DeleteIntegration
+    deletePipeline(id: IntID!): DeletePipeline
+    deleteProject(id: IntID!): DeleteProject
+    """
+    A normal user can only delete itself.
+    A super user can delete any users.
+    """
+    deleteUser(id: IntID!): DeleteUser
+    deleteWidget(id: IntID!): DeleteWidget
+    deleteWidgetType(id: IntID!): DeleteWidgetType
+    refreshToken(token: String!): Refresh
+    sendCeleryTask(config: JSONString!, taskType: String!): SendCeleryTask
+    "Obtain JSON Web Token mutation"
+    tokenAuth(password: String!, username: String!): ObtainJSONWebToken
+    updateBlock(config: JSONString, id: IntID!, label: String): UpdateBlock
+    updateBlockType(config: JSONString, id: IntID!, label: String): UpdateBlockType
+    updateDashboard(id: IntID!, label: String): UpdateDashboard
+    updateDataConnector(config: JSONString, id: IntID!, label: String): UpdateDataConnector
+    updateDataConnectorType(config: JSONString, id: IntID!, label: String): UpdateDataConnectorType
+    updateIntegration(config: JSONString, id: IntID!, label: String): UpdateIntegration
+    updatePipeline(config: JSONString, id: IntID!, label: String): UpdatePipeline
+    updateProject(id: IntID!, label: String): UpdateProject
+    """
+    A normal user can only update itself.
+    A normal user can not update super user status.
+    A super user can update any users.
+    A super user can update super user status.
+    """
+    updateUser(id: IntID!, isSuperuser: Boolean!, password: String!, username: String!): UpdateUser
+    updateWidget(config: JSONString, id: IntID!, label: String): UpdateWidget
+    updateWidgetType(config: JSONString, id: IntID!): UpdateWidgetType
+    verifyToken(token: String!): Verify
+}
+
+"Obtain JSON Web Token mutation"
+type ObtainJSONWebToken {
+    token: String
+}
+
+type PipelineType {
+    blocks: [BlockType!]!
+    config: JSONString!
+    id: IntID!
+    label: String!
+    project: ProjectType!
+    user: UserType!
+}
+
+type ProjectType {
+    dashboards: [DashboardType!]!
+    dataConnectors: [DataConnectorType!]!
+    id: IntID!
+    label: String!
+    pipelines: [PipelineType!]!
+    user: UserType!
+    workspace: WorkspaceType!
+}
+
+type Query {
+    allBlockTypes: [BlockTypeType]
+    allBlocks: [BlockType]
+    allDashboards: [DashboardType]
+    allDataConnectorTypes: [DataConnectorTypeType]
+    allDataConnectors: [DataConnectorType]
+    allIntegrations: [IntegrationType]
+    allPipelines: [PipelineType]
+    allProjects: [ProjectType]
+    allUsers: [UserType]
+    allWidgetTypes: [WidgetTypeType]
+    allWidgets: [WidgetType]
+    allWorkspaces: [WorkspaceType]
+    block(id: IntID!): BlockType
+    blockType(id: IntID!): BlockTypeType
+    dashboard(id: IntID!): DashboardType
+    dataConnector(id: IntID!): DataConnectorType
+    dataConnectorType(id: IntID!): DataConnectorTypeType
+    integration(id: IntID!): IntegrationType
+    pipeline(id: IntID!): PipelineType
+    project(id: IntID!): ProjectType
+    user(id: IntID!): UserType
+    widget(id: IntID!): WidgetType
+    widgetType(id: IntID!): WidgetTypeType
+    workspace(id: IntID!): WorkspaceType
+}
+
+type Refresh {
+    payload: GenericScalar
+    token: String
+}
+
+type SendCeleryTask {
+    ok: Boolean
+}
+
+type UpdateBlock {
+    block: BlockType
+}
+
+type UpdateBlockType {
+    blockType: BlockTypeType
+}
+
+type UpdateDashboard {
+    dashboard: DashboardType
+}
+
+type UpdateDataConnector {
+    dataConnector: DataConnectorType
+}
+
+type UpdateDataConnectorType {
+    dataConnectorType: DataConnectorTypeType
+}
+
+type UpdateIntegration {
+    integration: IntegrationType
+}
+
+type UpdatePipeline {
+    pipeline: PipelineType
+}
+
+type UpdateProject {
+    project: ProjectType
+}
+
+"""
+A normal user can only update itself.
+A normal user can not update super user status.
+A super user can update any users.
+A super user can update super user status.
+"""
+type UpdateUser {
+    user: UserType
+}
+
+type UpdateWidget {
+    widget: WidgetType
+}
+
+type UpdateWidgetType {
+    widgetType: WidgetTypeType
+}
+
+type UserType {
+    blocks: [BlockType!]!
+    dashboards: [DashboardType!]!
+    dataConnectors: [DataConnectorType!]!
+    id: IntID!
+    integrations: [IntegrationType!]!
+    "Designates that this user has all permissions without explicitly assigning them."
+    isSuperuser: Boolean!
+    pipelines: [PipelineType!]!
+    projects: [ProjectType!]!
+    "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+    username: String!
+    widgets: [WidgetType!]!
+    workspace: WorkspaceType!
+}
+
+type Verify {
+    payload: GenericScalar
+}
+
+type WidgetType {
+    config: JSONString!
+    dashboard: DashboardType!
+    id: IntID!
+    label: String!
+    user: UserType!
+    widgetType: WidgetTypeType!
+}
+
+type WidgetTypeType {
+    config: JSONString!
+    id: IntID!
+    label: String!
+}
+
+type WorkspaceType {
+    id: IntID!
+    integrations: [IntegrationType!]!
+    projects: [ProjectType!]!
+    user: UserType!
+}
+
+
+"""
+Allows use of a JSON String for input / output from the GraphQL schema.
+
+Use of this type is *not recommended* as you lose the benefits of having a defined, static
+schema (one of the key benefits of GraphQL).
+"""
+scalar JSONString
+
+scalar IntID
+
+"""
+The `GenericScalar` scalar type represents a generic
+GraphQL scalar value that could be:
+String, Boolean, Int, Float, List or Object.
+"""
+scalar GenericScalar

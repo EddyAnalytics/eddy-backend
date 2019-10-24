@@ -1,0 +1,9 @@
+mutation {
+    createUser(username: "as_user", password: "as_user", isSuperuser: true) {
+        user {
+            id
+            username
+            isSuperuser
+        }
+    }
+}
