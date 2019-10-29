@@ -8,6 +8,8 @@ from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django_mysql.models import JSONField
 
+import eddy_backend.celery
+
 logger = logging.getLogger(__name__)
 
 
@@ -93,7 +95,10 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
         response = requests.post(url, headers=headers, data=data)
         logger.debug(response)
         logger.debug(response.content)
-
+    elif data_connector_type.label == 'CSV':
+        url = data_connector.config['url']
+        topic = data_connector.config['topic']
+        eddy_backend.celery.app.send_task('app.csv_to_kafka', (url, topic))
 
 @receiver(pre_delete, sender=DataConnector)
 def pre_delete_data_connector(signal, sender, instance: DataConnector, using, **kwargs):
