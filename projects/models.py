@@ -100,6 +100,7 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
         topic = data_connector.config['topic']
         eddy_backend.celery.app.send_task('app.csv_to_kafka', (url, topic))
 
+
 @receiver(pre_delete, sender=DataConnector)
 def pre_delete_data_connector(signal, sender, instance: DataConnector, using, **kwargs):
     data_connector = instance
@@ -124,7 +125,7 @@ class DataConnectorType(models.Model):
     id = models.AutoField(primary_key=True)
     label = models.CharField(max_length=200, default='Debezium')
     integration = models.ForeignKey('integrations.Integration', models.CASCADE, related_name='data_connector_types',
-                                    null=True)
+                                    null=True, blank=True)
     config = JSONField(default=default)
 
     def __str__(self):
