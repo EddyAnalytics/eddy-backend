@@ -96,9 +96,10 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
         logger.debug(response)
         logger.debug(response.content)
     elif data_connector_type.label == 'CSV':
+        unique_name = str(data_connector.project.id) + '.' + str(data_connector.id)
         url = data_connector.config['url']
         topic = data_connector.config['topic']
-        eddy_backend.celery.app.send_task('app.csv_to_kafka', (url, topic))
+        eddy_backend.celery.app.send_task('app.csv_to_kafka', (url, unique_name + topic))
 
 
 @receiver(pre_delete, sender=DataConnector)
