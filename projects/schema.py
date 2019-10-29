@@ -381,20 +381,21 @@ class CreateDataConnectorType(graphene.Mutation):
             # only superusers can create data_connector_types
             raise ForbiddenException()
 
-        try:
-            integration = Integration.objects.get(pk=kwargs.get('integration_id'))
-        except Integration.DoesNotExist:
-            # any user can only create a data_connector if it associates it to a integration
-            raise NotFoundException()
+        if 'integration_id' in kwargs.keys():
+            try:
+                integration = Integration.objects.get(pk=kwargs.get('integration_id'))
+            except Integration.DoesNotExist:
+                # any user can only create a data_connector if it associates it to a integration
+                raise NotFoundException()
 
-        if integration.user != info.context.user:
-            raise ForbiddenException()
+            if integration.user != info.context.user:
+                raise ForbiddenException()
 
-        if not integration.supports_data_connectors:
-            raise ConflictException()
+            if not integration.supports_data_connectors:
+                raise ConflictException()
 
-        del create_kwargs['integration_id']
-        create_kwargs['integration'] = integration
+            del create_kwargs['integration_id']
+            create_kwargs['integration'] = integration
 
         data_connector_type = models.DataConnectorType()
 
