@@ -1,6 +1,7 @@
+import json
+
 import graphene
 from graphene_django import DjangoObjectType
-import json
 
 import eddy_backend.celery
 from authentication.models import User
@@ -258,7 +259,6 @@ class UpdateBlock(graphene.Mutation):
     class Arguments:
         id = IntID(required=True)
         label = graphene.String()
-        # TODO maybe add block_type
         config = graphene.JSONString()
 
     block = graphene.Field(BlockType)
@@ -312,8 +312,6 @@ class DeleteBlock(graphene.Mutation):
             raise ForbiddenException()
 
         block.delete()
-
-        # TODO maybe add some hooks to delete other blocks and stuff
 
         return DeleteBlock(id=kwargs.get('id'))
 
@@ -449,8 +447,6 @@ class DeleteBlockType(graphene.Mutation):
             raise NotFoundException()
 
         block_type.delete()
-
-        # TODO maybe delete orphans or something
 
         return DeleteBlockType(id=kwargs.get('id'))
 

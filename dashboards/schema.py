@@ -314,8 +314,6 @@ class DeleteWidget(graphene.Mutation):
 
         widget.delete()
 
-        # TODO maybe add some hooks to delete other blocks and stuff
-
         return DeleteWidget(id=kwargs.get('id'))
 
 
@@ -449,8 +447,6 @@ class DeleteWidgetType(graphene.Mutation):
             raise NotFoundException()
 
         widget_type.delete()
-
-        # TODO maybe delete orphans or something
 
         return DeleteWidgetType(id=kwargs.get('id'))
 

@@ -46,8 +46,6 @@ class DataConnector(models.Model):
                                             related_name='data_connectors')
     config = JSONField(default=default)
 
-    #  TODO topics field
-
     def __str__(self):
         return self.label
 

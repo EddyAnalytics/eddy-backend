@@ -170,7 +170,6 @@ GRAPHQL_JWT = {
 KAFKA_HOST = os.environ.get('KAFKA_HOST', default='debezium-kafka')
 KAFKA_PORT = os.environ.get('KAFKA_PORT', default='9092')
 
-# TODO temporary redis testing code
 CELERY_BROKER_TRANSPORT = os.environ.get('CELERY_BROKER_TRANSPORT', default='redis')
 CELERY_BROKER_HOST = os.environ.get('CELERY_BROKER_HOST', default='localhost')
 CELERY_BROKER_PORT = os.environ.get('CELERY_BROKER_PORT', default='6379')
