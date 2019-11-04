@@ -13,8 +13,6 @@ import logging
 import os
 import sys
 
-TESTING = sys.argv[1:2] == ['test']
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -22,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', default='!e*6)vw88z&%p7j7vs0e-g=e3cx!pccbm6)z#ef88%ur-sn-2*')
+SECRET_KEY = os.environ.get('SECRET_KEY', default='lw0i0k2!vpkh7ixs9tey+(j0++wbl-sxm6%6m4w37oye1$7s=l')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.environ.get('DEBUG', default='True') == 'True' else False
@@ -32,11 +30,10 @@ if DEBUG:
 else:
     logging.basicConfig(level=logging.WARNING)
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
-
-CORS_ORIGIN_ALLOW_ALL = True if os.environ.get('CORS_ORIGIN_ALLOW_ALL', default='True') == 'True' else False
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', default='*')
 
 # Application definition
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -49,21 +46,19 @@ INSTALLED_APPS = [
     'authentication',
     'dashboards',
     'integrations',
-    'projects',
     'pipelines',
+    'projects',
     'workspaces',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'eddy_backend.urls'
@@ -71,8 +66,7 @@ ROOT_URLCONF = 'eddy_backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -89,28 +83,17 @@ WSGI_APPLICATION = 'eddy_backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-if TESTING:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('DB_NAME'),
-            'USER': 'root',
-            'PASSWORD': 'mysqlrootpassword',
-            'HOST': os.environ.get('MYSQL_HOST'),
-            'PORT': os.environ.get('MYSQL_PORT'),
-        }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('MYSQL_DB_NAME', default='db_eddy_backend'),
+        'USER': os.environ.get('MYSQL_USER', default='eddy_backend'),
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD', default='mysqlpassword'),
+        'HOST': os.environ.get('MYSQL_HOST', default='mysql'),
+        'PORT': os.environ.get('MYSQL_PORT', default='3306'),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('DB_NAME'),
-            'USER': os.environ.get('MYSQL_USER'),
-            'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
-            'HOST': os.environ.get('MYSQL_HOST'),
-            'PORT': os.environ.get('MYSQL_PORT'),
-        }
-    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -149,6 +132,13 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = './static/'
 
+# Cors
+CORS_ORIGIN_ALLOW_ALL = True if os.environ.get('CORS_ORIGIN_ALLOW_ALL', default='True') == 'True' else False
+
+# Custom User Model
+AUTH_USER_MODEL = 'authentication.User'
+
+# Graphene
 GRAPHENE = {
     'SCHEMA': 'schema.schema',
     'MIDDLEWARE': [
@@ -156,20 +146,20 @@ GRAPHENE = {
     ],
 }
 
+# Graphql JWT
+GRAPHQL_JWT = {
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+}
 AUTHENTICATION_BACKENDS = [
     'graphql_jwt.backends.JSONWebTokenBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-AUTH_USER_MODEL = 'authentication.User'
-
-GRAPHQL_JWT = {
-    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
-}
-
+# Kafka
 KAFKA_HOST = os.environ.get('KAFKA_HOST', default='debezium-kafka')
 KAFKA_PORT = os.environ.get('KAFKA_PORT', default='9092')
 
+# Celery
 CELERY_BROKER_TRANSPORT = os.environ.get('CELERY_BROKER_TRANSPORT', default='redis')
 CELERY_BROKER_HOST = os.environ.get('CELERY_BROKER_HOST', default='localhost')
 CELERY_BROKER_PORT = os.environ.get('CELERY_BROKER_PORT', default='6379')

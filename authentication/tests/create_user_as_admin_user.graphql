@@ -1,9 +1,0 @@
-mutation {
-    createUser(username: "as_admin_user", password: "as_admin_user", isSuperuser: true) {
-        user {
-            id
-            username
-            isSuperuser
-        }
-    }
-}
