@@ -10,7 +10,6 @@ if [ "$1" = 'no-startup' ]; then
     sleep 1
   done
 elif [ "$1" = 'eddy-backend' ]; then
-  python3 manage.py makemigrations --no-input
   python3 manage.py migrate --no-input
   python3 manage.py collectstatic --no-input
   python3 manage.py createadminuser
