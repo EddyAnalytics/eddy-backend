@@ -11,10 +11,9 @@ integration_types = ['debezium']
 
 def default():
     return {
-        'host': 'my-connect-cluster-connect-api.strimzi-kafka-operator.svc.cluster.local',
+        'host': 'eddy-connect-api',
         'port': '8083'
     }
-
 
 # supports_data_connectors True --> Debezium (Twitter)
 # support_data_connectors False --> (Spark Flink Hadoop)
