@@ -1,6 +1,6 @@
 # Eddy Admin Backend
 
-Django-based administration backend for the Eddy Analytics. 
+Django-based administration backend for the Eddy Analytics platform. 
 
 ## Project Development Setup
 

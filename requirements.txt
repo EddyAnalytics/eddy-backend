@@ -1,9 +1,8 @@
-uwsgi
 Django
 django-cors-headers
 django-mysql
-mysqlclient
 graphene-django
 django-graphql-jwt
 celery[redis]
 requests
+uWSGI==2.0.19.1

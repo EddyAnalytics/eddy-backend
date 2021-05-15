@@ -10,7 +10,7 @@ services:
     env_file: .env
 
   mysql:
-    image: mysql
+    image: mysql:8
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: mysqlrootpassword
