@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'eddy_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQL_DB_NAME', default='db_eddy_backend'),
+        'NAME': os.environ.get('MYSQL_DB_NAME', default='eddy_backend'),
         'USER': os.environ.get('MYSQL_USER', default='eddy_backend'),
         'PASSWORD': os.environ.get('MYSQL_PASSWORD', default='mysqlpassword'),
         'HOST': os.environ.get('MYSQL_HOST', default='mysql'),

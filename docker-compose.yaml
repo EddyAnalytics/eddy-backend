@@ -5,19 +5,16 @@ services:
       context: .
     ports:
       - 8881:8000
-    links:
-      - mysql:mysql
     volumes:
       - ./:/usr/src/app/
     env_file: .env
-#    command: no-startup
 
   mysql:
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: mysqlrootpassword
-      MYSQL_DATABASE: db_eddy_backend
+      MYSQL_DATABASE: eddy_backend
       MYSQL_USER: eddy_backend
       MYSQL_PASSWORD: mysqlpassword
 
@@ -26,23 +23,14 @@ services:
 
   debezium-kafka:
     image: debezium/kafka:0.10
-    links:
-      - debezium-zookeeper:debezium-zookeeper
     environment:
       - ZOOKEEPER_CONNECT=debezium-zookeeper:2181
 
   debezium-mysql:
     image: debezium/example-mysql:0.10
-    environment:
-      - MYSQL_ROOT_PASSWORD=debezium
-      - MYSQL_USER=mysqluser
-      - MYSQL_PASSWORD=mysqlpassword
 
   debezium-connect:
     image: debezium/connect:0.10
-    links:
-      - debezium-kafka:debezium-kafka
-      - debezium-mysql:debezium-mysql
     environment:
       - BOOTSTRAP_SERVERS=debezium-kafka:9092
       - GROUP_ID=1
