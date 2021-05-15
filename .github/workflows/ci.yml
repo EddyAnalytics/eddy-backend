@@ -1,0 +1,21 @@
+name: Continous Integration
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Setup Dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Run Tests
+        run: ./manage.py test
+      - name: Build Docker image
+        run: docker build . -t eddyanalytics/eddy-backend
+      - name: Push Docker image
+        run: |
+          echo '${{ secrets.CI_REGISTRY_TOKEN }}' | docker login --username eddyanalytics --password-stdin
+          docker push eddyanalytics/eddy-backend
