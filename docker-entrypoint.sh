@@ -12,7 +12,6 @@ if [ "$1" = 'no-startup' ]; then
 elif [ "$1" = 'eddy-backend' ]; then
   python3 manage.py migrate --no-input
   python3 manage.py collectstatic --no-input
-  python3 manage.py createadminuser
   exec uwsgi --ini uwsgi.ini
 
   exec "$@"
