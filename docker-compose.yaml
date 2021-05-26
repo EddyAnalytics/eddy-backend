@@ -11,6 +11,9 @@ services:
       - ./:/usr/src/app/
     env_file: .env
 
+  redis:
+    image: redis:6.2.3
+
   mysql:
     image: mysql:8.0.25
     command: --default-authentication-plugin=mysql_native_password
