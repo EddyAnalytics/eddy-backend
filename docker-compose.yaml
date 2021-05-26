@@ -9,6 +9,7 @@ services:
       - mysql
     volumes:
       - ./:/usr/src/app/
+    command: "eddy-backend-dev"
     env_file: .env
 
   redis:
