@@ -76,9 +76,9 @@ def post_save_data_connector(signal, sender, instance: DataConnector, using, **k
             config_dict['database.port'] = data_connector.config['port']
             config_dict['database.user'] = data_connector.config['user']
             config_dict['database.password'] = data_connector.config['password']
-            config_dict['database.server.name'] = unique_name
             config_dict['database.server.id'] = unique_id
-            config_dict['database.whitelist'] = data_connector.config['databases']
+            config_dict['database.server.name'] = unique_name
+            config_dict['database.include.list'] = data_connector.config['databases']
             config_dict['database.history.kafka.topic'] = 'schema-changes' + '.' + unique_name
             config_dict['database.history.kafka.bootstrap.servers'] = settings.KAFKA_HOST + ':' + settings.KAFKA_PORT
 
