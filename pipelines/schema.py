@@ -470,6 +470,8 @@ class SendCeleryTask(graphene.Mutation):
             eddy_backend.celery.app.send_task('app.submit_flink_sql', (json.dumps(kwargs.get('config')),))
         elif kwargs.get('task_type') == 'beam':
             eddy_backend.celery.app.send_task('app.submit_beam_sql', (json.dumps(kwargs.get('config')),))
+        elif kwargs.get('task_type') == 'beam-python':
+            eddy_backend.celery.app.send_task('app.submit_beam_python', (json.dumps(kwargs.get('config')),))
         else:
             raise NotFoundException()
 
