@@ -9,6 +9,10 @@ cp .env.example .env
 ```
 
 ```bash
+docker network create eddy
+```
+
+```bash
 docker-compose up
 ```
 

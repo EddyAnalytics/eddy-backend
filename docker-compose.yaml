@@ -56,3 +56,8 @@ services:
       - STATUS_STORAGE_TOPIC=my_connect_statuses
 volumes:
   mysql-data:
+
+networks:
+  default:
+    external:
+      name: eddy
