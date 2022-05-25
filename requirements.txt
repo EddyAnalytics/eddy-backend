@@ -18,7 +18,7 @@ kombu==4.6.5
 more-itertools==7.2.0
 mysqlclient==1.4.4
 promise==2.2.1
-PyJWT==1.7.1
+PyJWT==2.4.0
 pytz==2019.3
 redis==3.3.11
 requests==2.22.0
