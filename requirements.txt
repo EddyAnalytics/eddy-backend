@@ -2,7 +2,7 @@ amqp==2.5.1
 aniso8601==7.0.0
 billiard==3.6.1.0
 celery==4.3.0
-certifi==2019.9.11
+certifi==2022.12.7
 chardet==3.0.4
 Django==2.2.20
 django-cors-headers==3.1.1
